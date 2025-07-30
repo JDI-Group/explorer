@@ -19,6 +19,9 @@ const AddressEntityContentProxy = (props: ContentProps) => {
 
   const implementationName = implementations.length === 1 && implementations[0].name ? implementations[0].name : undefined;
 
+  if (props.address.name === 'WmbGatewayProxy') {
+    props.address.name = 'MoonchainGatewayProxy';
+  }
   const content = (
     <>
       <Box fontWeight={ 600 }>

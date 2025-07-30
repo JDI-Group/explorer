@@ -284,6 +284,15 @@ const CodeEditor = ({ data, remappings, libraries, language, mainFile, contractN
     );
   }
 
+  if (data[index].file_path === 'contracts/utils/WmbGatewayProxy.sol') {
+    data[index].file_path = 'contracts/utils/MoonchainGatewayProxy.sol';
+  }
+  if (data[index].source_code.includes('WmbGatewayProxy')) {
+    data[index].source_code = data[index].source_code.replace(/Wanchain Message Bridge/g, 'Moonchain Gateway Proxy');
+    data[index].source_code = data[index].source_code.replace(/https:\/\/wanchain.org/g, '');
+    data[index].source_code = data[index].source_code.replace(/WmbGatewayProxy/g, 'MoonchainGatewayProxy');
+  }
+
   return (
     <Flex
       className={ isMetaPressed ? 'meta-pressed' : undefined }

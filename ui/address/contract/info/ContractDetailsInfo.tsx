@@ -22,6 +22,12 @@ interface Props {
 }
 
 const ContractDetailsInfo = ({ data, isLoading, addressHash }: Props) => {
+  if (data.name === 'WmbGatewayProxy') {
+    data.name = 'TransparentUpgradeableProxy';
+  }
+  if (data.file_path === 'contracts/utils/WmbGatewayProxy.sol') {
+    data.file_path = 'contracts/utils/MoonchainGatewayProxy.sol';
+  }
   const contractNameWithCertifiedIcon = data ? (
     <Flex alignItems="center">
       { data.name }

@@ -33,6 +33,10 @@ const AddressNameInfo = ({ data, isLoading }: Props) => {
     );
   }
 
+  if (data.name === 'WmbGatewayProxy') {
+    data.name = 'TransparentUpgradeableProxy';
+  }
+
   if (data.is_contract && data.name) {
     return (
       <>

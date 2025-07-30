@@ -20,17 +20,11 @@ const AddressCoinBalanceChart = ({ addressHash }: Props) => {
       return undefined;
     }
 
-    if (!config.UI.views.address.hiddenBalancesAddresses.includes(addressHash)) {
-      data.items.forEach((item, index) => {
-        data.items[index].value = '0';
-      });
-    }
-
     return data.items.map(({ date, value }) => ({
       date: new Date(date),
       value: BigNumber(value).div(10 ** config.chain.currency.decimals).toNumber(),
     }));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [ data ]);
 
   return (

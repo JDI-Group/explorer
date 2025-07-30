@@ -242,11 +242,12 @@ const AddressPageContent = () => {
         count: addressTabsCountersQuery.data?.celo_election_rewards_count,
         component: <AddressEpochRewards shouldRender={ !isTabsLoading } isQueryEnabled={ areQueriesEnabled }/>,
       } : undefined,
-      {
-        id: 'coin_balance_history',
-        title: 'Coin balance history',
-        component: <AddressCoinBalance shouldRender={ !isTabsLoading } isQueryEnabled={ areQueriesEnabled }/>,
-      },
+      !config.UI.views.address.hiddenBalancesAddresses.includes(hash) ?
+        {
+          id: 'coin_balance_history',
+          title: 'Coin balance history',
+          component: <AddressCoinBalance shouldRender={ !isTabsLoading } isQueryEnabled={ areQueriesEnabled }/>,
+        } : undefined,
       addressTabsCountersQuery.data?.validations_count ?
         {
           id: 'blocks_validated',
@@ -265,6 +266,7 @@ const AddressPageContent = () => {
         undefined,
     ].filter(Boolean);
   }, [
+    hash,
     addressQuery,
     contractTabs,
     addressTabsCountersQuery.data,

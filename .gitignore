@@ -63,3 +63,6 @@ yarn-error.log*
 /tools/preset-sync/index.js
 .vercel
 /toolkit/package/dist
+
+# editor
+.idea

@@ -2,7 +2,8 @@ import type { Feature } from './types';
 
 import { getEnvValue } from '../utils';
 
-const apiHost = getEnvValue('NEXT_PUBLIC_NAME_SERVICE_API_HOST');
+const apiHost = getEnvValue('NEXT_PUBLIC_NAME_SERVICE_API_HOST') || '';
+const basePath = apiHost.slice(apiHost.indexOf('/', 3)) || '';
 
 const title = 'Name service integration';
 
@@ -13,7 +14,7 @@ const config: Feature<{ api: { endpoint: string; basePath: string } }> = (() => 
       isEnabled: true,
       api: {
         endpoint: apiHost,
-        basePath: '',
+        basePath: basePath,
       },
     });
   }
