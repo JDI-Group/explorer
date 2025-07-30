@@ -20,6 +20,7 @@ const init = () => {
     }
 
     createAppKit({
+      // @ts-ignore
       adapters: [ wagmiConfig.adapter ],
       networks: [ currentChain, parentChain ].filter(Boolean) as [AppKitNetwork, ...Array<AppKitNetwork>],
       metadata: {

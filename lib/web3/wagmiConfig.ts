@@ -32,6 +32,7 @@ const wagmi = (() => {
   }
 
   const wagmiAdapter = new WagmiAdapter({
+    // @ts-ignore
     networks: chains as Array<AppKitNetwork>,
     multiInjectedProviderDiscovery: true,
     transports: {

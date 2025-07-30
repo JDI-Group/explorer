@@ -72,7 +72,7 @@
     "@opentelemetry/sdk-trace-node": "1.22.0",
     "@opentelemetry/semantic-conventions": "1.22.0",
     "@reown/appkit": "1.7.0",
-    "@reown/appkit-adapter-wagmi": "^1.7.17",
+    "@reown/appkit-adapter-wagmi": "^1.7.0",
     "@rollbar/react": "0.12.1",
     "@scure/base": "1.1.9",
     "@slise/embed-react": "^2.2.0",
