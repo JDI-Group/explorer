@@ -50,6 +50,7 @@ const moduleExports = {
       dynamic: 30,
       'static': 180,
     },
+    optimizePackageImports: ['ox', '@noble/curves','@reown/appkit-utils','eventemitter3']
   },
 };
 
