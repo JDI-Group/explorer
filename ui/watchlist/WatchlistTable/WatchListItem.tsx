@@ -45,28 +45,28 @@ const WatchListItem = ({ item, isLoading, onEditClick, onDeleteClick, hasEmail }
   const showNotificationToast = useCallback((isOn: boolean) => {
     toaster.success({
       title: 'Success',
-      description: !isOn ? 'Email notification is ON' : 'Email notification is OFF',
+      description: isOn ? 'Email notification is ON' : 'Email notification is OFF',
     });
   }, [ ]);
 
-  const { mutate } = useMutation({
+  const { mutate } = useMutation<WatchlistAddress>({
     mutationFn: () => {
       setSwitchDisabled(true);
       const body = { ...item, notification_methods: { email: !notificationEnabled } };
       setNotificationEnabled(prevState => !prevState);
-      return apiFetch('watchlist', {
+      return apiFetch('general:watchlist', {
         pathParams: { id: String(item.id) },
         fetchParams: { method: 'PUT', body },
-      });
+      }) as Promise<WatchlistAddress>;
     },
     onError: () => {
       showErrorToast();
       setNotificationEnabled(prevState => !prevState);
       setSwitchDisabled(false);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setSwitchDisabled(false);
-      showNotificationToast(notificationEnabled);
+      showNotificationToast(data.notification_methods.email);
     },
   });
 
@@ -88,7 +88,6 @@ const WatchListItem = ({ item, isLoading, onEditClick, onDeleteClick, hasEmail }
           <Text textStyle="sm" fontWeight={ 500 }>Email notification</Text>
           <Skeleton loading={ isLoading } display="inline-block">
             <Switch
-              size="md"
               checked={ notificationEnabled }
               onCheckedChange={ onSwitch }
               aria-label="Email notification"

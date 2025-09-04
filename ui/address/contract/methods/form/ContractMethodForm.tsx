@@ -14,11 +14,12 @@ import { useDisclosure } from 'toolkit/hooks/useDisclosure';
 import { SECOND } from 'toolkit/utils/consts';
 import IconSvg from 'ui/shared/IconSvg';
 
-import { isReadMethod } from '../utils';
+import { isReadMethod, isWriteMethod } from '../utils';
 import ContractMethodFieldAccordion from './ContractMethodFieldAccordion';
 import ContractMethodFieldInput from './ContractMethodFieldInput';
 import ContractMethodFieldInputArray from './ContractMethodFieldInputArray';
 import ContractMethodFieldInputTuple from './ContractMethodFieldInputTuple';
+import ContractMethodOutput from './ContractMethodOutput';
 import ContractMethodResultPublicClient from './ContractMethodResultPublicClient';
 import ContractMethodResultWalletClient from './ContractMethodResultWalletClient';
 import { getFieldLabel, matchArray, transformFormDataToMethodArgs } from './utils';
@@ -68,16 +69,25 @@ const ContractMethodForm = ({ data, attempt, onSubmit, onReset, isOpen }: Props)
     const args = transformFormDataToMethodArgs(formData);
 
     if (callStrategyRef.current === 'copy_calldata') {
-      if (!('name' in data) || !data.name) {
+      if (!('inputs' in data)) {
+        return;
+      }
+
+      // since we have added additional input for native coin value
+      // we need to slice it off
+      const argsToPass = args.slice(0, data.inputs.length);
+
+      if (!('name' in data)) {
+        // this condition means that the fallback method acts as a read method with inputs
+        const data = typeof argsToPass[0] === 'string' && argsToPass[0].startsWith('0x') ? argsToPass[0] as `0x${ string }` : '0x';
+        await navigator.clipboard.writeText(data);
         return;
       }
 
       const callData = encodeFunctionData({
         abi: [ data ],
         functionName: data.name,
-        // since we have added additional input for native coin value
-        // we need to slice it off
-        args: args.slice(0, data.inputs.length),
+        args: argsToPass,
       });
       await navigator.clipboard.writeText(callData);
       return;
@@ -236,6 +246,8 @@ const ContractMethodForm = ({ data, attempt, onSubmit, onReset, isOpen }: Props)
     );
   })();
 
+  const showOutputResult = result && result.source === 'public_client' && !(result.data instanceof Error);
+
   return (
     <Box>
       <FormProvider { ...formApi }>
@@ -251,6 +263,7 @@ const ContractMethodForm = ({ data, attempt, onSubmit, onReset, isOpen }: Props)
                 basePath: `${ index }`,
                 isDisabled: isLoading,
                 level: 0,
+                isOptional: data.type === 'fallback' && isWriteMethod(data),
               };
 
               if ('components' in input && input.components && input.type === 'tuple') {
@@ -306,12 +319,17 @@ const ContractMethodForm = ({ data, attempt, onSubmit, onReset, isOpen }: Props)
           onSettle={ handleResultSettle }
         />
       ) }
-      { 'outputs' in data && data.outputs.length > 0 && (
+      { result && result.source === 'public_client' && result.data instanceof Error && (
         <ContractMethodResultPublicClient
-          data={ result && result.source === 'public_client' ? result.data : undefined }
+          data={ result.data }
+        />
+      ) }
+      { 'outputs' in data && data.outputs.length > 0 && (
+        <ContractMethodOutput
+          data={ showOutputResult ? result.data : undefined }
           onSettle={ handleResultSettle }
           abiItem={ data }
-          mode={ result && result.source === 'public_client' ? 'result' : 'preview' }
+          mode={ showOutputResult ? 'result' : 'preview' }
         />
       ) }
     </Box>

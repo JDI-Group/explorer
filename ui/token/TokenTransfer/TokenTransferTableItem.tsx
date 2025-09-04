@@ -12,7 +12,7 @@ import { TableCell, TableRow } from 'toolkit/chakra/table';
 import AddressFromTo from 'ui/shared/address/AddressFromTo';
 import NftEntity from 'ui/shared/entities/nft/NftEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 
 type Props = TokenTransfer & { tokenId?: string; isLoading?: boolean; instance?: TokenInstance };
 
@@ -39,7 +39,7 @@ const TokenTransferTableItem = ({
   return (
     <TableRow alignItems="top">
       <TableCell>
-        <Flex alignItems="center" py="7px">
+        <Flex flexDirection="column" alignItems="flex-start" mt="5px" rowGap={ 3 }>
           <TxEntity
             hash={ txHash }
             isLoading={ isLoading }
@@ -47,14 +47,13 @@ const TokenTransferTableItem = ({
             noIcon
             truncation="constant_long"
           />
-          <TimeAgoWithTooltip
+          <TimeWithTooltip
             timestamp={ timestamp }
             enableIncrement
             isLoading={ isLoading }
             display="inline-block"
-            color="gray.500"
+            color="text.secondary"
             fontWeight="400"
-            ml="10px"
           />
         </Flex>
       </TableCell>
@@ -72,7 +71,7 @@ const TokenTransferTableItem = ({
           isLoading={ isLoading }
           mt="5px"
           mode={{ lg: 'compact', xl: 'long' }}
-          tokenHash={ token?.address }
+          tokenHash={ token?.address_hash }
           tokenSymbol={ token?.symbol ?? undefined }
         />
       </TableCell>
@@ -80,7 +79,7 @@ const TokenTransferTableItem = ({
         <TableCell>
           { total && 'token_id' in total && token && total.token_id !== null ? (
             <NftEntity
-              hash={ token.address }
+              hash={ token.address_hash }
               id={ total.token_id }
               instance={ instance || total.token_instance }
               noLink={ Boolean(tokenId && tokenId === total.token_id) }

@@ -1,8 +1,11 @@
 import { Box, Flex, Text, Grid, HStack } from '@chakra-ui/react';
 import React from 'react';
 
-import { route } from 'nextjs-routes';
+import type { NFTTokenType } from 'types/api/token';
 
+import { route } from 'nextjs/routes';
+
+import { useMultichainContext } from 'lib/contexts/multichain';
 import useIsMobile from 'lib/hooks/useIsMobile';
 import { Link } from 'toolkit/chakra/link';
 import { Skeleton } from 'toolkit/chakra/skeleton';
@@ -14,22 +17,28 @@ import NftFallback from 'ui/shared/nft/NftFallback';
 import Pagination from 'ui/shared/pagination/Pagination';
 import type { QueryWithPagesResult } from 'ui/shared/pagination/useQueryWithPages';
 
+import AddressNftTypeFilter from './AddressNftTypeFilter';
 import NFTItem from './NFTItem';
 import NFTItemContainer from './NFTItemContainer';
 
 type Props = {
-  collectionsQuery: QueryWithPagesResult<'address_collections'>;
+  collectionsQuery: QueryWithPagesResult<'general:address_collections'>;
   address: string;
-  hasActiveFilters: boolean;
+  tokenTypes: Array<NFTTokenType> | undefined;
+  onTokenTypesChange: (value: Array<NFTTokenType>) => void;
 };
 
-const AddressCollections = ({ collectionsQuery, address, hasActiveFilters }: Props) => {
+const AddressCollections = ({ collectionsQuery, address, tokenTypes, onTokenTypesChange }: Props) => {
   const isMobile = useIsMobile();
+  const multichainContext = useMultichainContext();
 
   const { isError, isPlaceholderData, data, pagination } = collectionsQuery;
 
+  const hasActiveFilters = Boolean(tokenTypes?.length);
+
   const actionBar = isMobile && pagination.isVisible && (
     <ActionBar mt={ -6 }>
+      <AddressNftTypeFilter value={ tokenTypes } onChange={ onTokenTypesChange }/>
       <Pagination ml="auto" { ...pagination }/>
     </ActionBar>
   );
@@ -38,15 +47,15 @@ const AddressCollections = ({ collectionsQuery, address, hasActiveFilters }: Pro
     const collectionUrl = route({
       pathname: '/token/[hash]',
       query: {
-        hash: item.token.address,
+        hash: item.token.address_hash,
         tab: 'inventory',
         holder_address_hash: address,
         scroll_to_tabs: 'true',
       },
-    });
+    }, multichainContext);
     const hasOverload = Number(item.amount) > item.token_instances.length;
     return (
-      <Box key={ item.token.address + index } mb={ 6 }>
+      <Box key={ item.token.address_hash + index } mb={ 6 }>
         <Flex mb={ 3 } flexWrap="wrap" lineHeight="30px">
           <TokenEntity
             width="auto"
@@ -55,6 +64,7 @@ const AddressCollections = ({ collectionsQuery, address, hasActiveFilters }: Pro
             isLoading={ isPlaceholderData }
             noCopy
             fontWeight="600"
+            chain={ multichainContext?.chain }
           />
           <Skeleton loading={ isPlaceholderData } mr={ 3 }>
             <Text color="text.secondary" whiteSpace="pre">{ ` - ${ Number(item.amount).toLocaleString() } item${ Number(item.amount) > 1 ? 's' : '' }` }</Text>
@@ -71,7 +81,7 @@ const AddressCollections = ({ collectionsQuery, address, hasActiveFilters }: Pro
           gridTemplateColumns={{ base: 'repeat(2, calc((100% - 12px)/2))', lg: 'repeat(auto-fill, minmax(210px, 1fr))' }}
         >
           { item.token_instances.map((instance, index) => {
-            const key = item.token.address + '_' + (instance.id && !isPlaceholderData ? `id_${ instance.id }` : `index_${ index }`);
+            const key = item.token.address_hash + '_' + (instance.id && !isPlaceholderData ? `id_${ instance.id }` : `index_${ index }`);
 
             return (
               <NFTItem

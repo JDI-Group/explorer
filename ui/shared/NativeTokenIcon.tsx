@@ -16,7 +16,7 @@ type Props = {
 };
 
 const NativeTokenIcon = ({ isLoading, className, type }: Props) => {
-  const statsQueryResult = useApiQuery('stats', {
+  const statsQueryResult = useApiQuery('general:stats', {
     queryOptions: {
       refetchOnMount: false,
       placeholderData: HOMEPAGE_STATS,
@@ -35,7 +35,7 @@ const NativeTokenIcon = ({ isLoading, className, type }: Props) => {
       borderRadius="base"
       src={ src || undefined }
       alt={ `${ config.chain.currency.symbol } logo` }
-      fallback={ <TokenLogoPlaceholder borderRadius="base" className={ className }/> }
+      fallback={ <TokenLogoPlaceholder/> }
     />
   );
 };

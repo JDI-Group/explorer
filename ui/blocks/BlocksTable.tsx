@@ -2,6 +2,7 @@ import { capitalize } from 'es-toolkit';
 import React from 'react';
 
 import type { Block } from 'types/api/block';
+import type { ChainConfig } from 'types/multichain';
 
 import config from 'configs/app';
 import { AddressHighlightProvider } from 'lib/contexts/addressHighlight';
@@ -11,6 +12,7 @@ import { currencyUnits } from 'lib/units';
 import { TableBody, TableColumnHeader, TableHeaderSticky, TableRoot, TableRow } from 'toolkit/chakra/table';
 import BlocksTableItem from 'ui/blocks/BlocksTableItem';
 import * as SocketNewItemsNotice from 'ui/shared/SocketNewItemsNotice';
+import TimeFormatToggle from 'ui/shared/time/TimeFormatToggle';
 
 interface Props {
   data: Array<Block>;
@@ -18,8 +20,9 @@ interface Props {
   top: number;
   page: number;
   socketInfoNum?: number;
-  socketInfoAlert?: string;
+  showSocketErrorAlert?: boolean;
   showSocketInfo?: boolean;
+  chainData?: ChainConfig;
 }
 
 const VALIDATOR_COL_WEIGHT = 23;
@@ -29,7 +32,7 @@ const FEES_COL_WEIGHT = 22;
 
 const isRollup = config.features.rollup.isEnabled;
 
-const BlocksTable = ({ data, isLoading, top, page, showSocketInfo, socketInfoNum, socketInfoAlert }: Props) => {
+const BlocksTable = ({ data, isLoading, top, page, showSocketInfo, socketInfoNum, showSocketErrorAlert, chainData }: Props) => {
   const initialList = useInitialList({
     data: data ?? [],
     idFn: (item) => item.height,
@@ -44,10 +47,14 @@ const BlocksTable = ({ data, isLoading, top, page, showSocketInfo, socketInfoNum
 
   return (
     <AddressHighlightProvider>
-      <TableRoot minWidth="1040px" fontWeight={ 500 }>
+      <TableRoot minWidth={ chainData ? '1100px' : '1070px' } fontWeight={ 500 }>
         <TableHeaderSticky top={ top }>
           <TableRow>
-            <TableColumnHeader width="150px">Block</TableColumnHeader>
+            { chainData && <TableColumnHeader width="38px"/> }
+            <TableColumnHeader width="180px">
+              Block
+              <TimeFormatToggle/>
+            </TableColumnHeader>
             <TableColumnHeader width="120px">Size, bytes</TableColumnHeader>
             { !config.UI.views.block.hiddenFields?.miner && (
               <TableColumnHeader width={ `${ VALIDATOR_COL_WEIGHT / widthBase * 100 }%` } minW="160px">
@@ -67,8 +74,7 @@ const BlocksTable = ({ data, isLoading, top, page, showSocketInfo, socketInfoNum
         <TableBody>
           { showSocketInfo && (
             <SocketNewItemsNotice.Desktop
-              url={ window.location.href }
-              alert={ socketInfoAlert }
+              showErrorAlert={ showSocketErrorAlert }
               num={ socketInfoNum }
               type="block"
               isLoading={ isLoading }
@@ -81,6 +87,7 @@ const BlocksTable = ({ data, isLoading, top, page, showSocketInfo, socketInfoNum
               enableTimeIncrement={ page === 1 && !isLoading }
               isLoading={ isLoading }
               animation={ initialList.getAnimationProp(item) }
+              chainData={ chainData }
             />
           )) }
         </TableBody>

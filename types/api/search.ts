@@ -1,4 +1,5 @@
 import type * as bens from '@blockscout/bens-types';
+import type * as tac from '@blockscout/tac-operation-lifecycle-types';
 import type { TokenType } from 'types/api/token';
 
 import type { AddressMetadataTagApi } from './addressMetadata';
@@ -14,6 +15,7 @@ export const SEARCH_RESULT_TYPES = {
   user_operation: 'user_operation',
   blob: 'blob',
   metadata_tag: 'metadata_tag',
+  tac_operation: 'tac_operation',
 } as const;
 
 export type SearchResultType = typeof SEARCH_RESULT_TYPES[keyof typeof SEARCH_RESULT_TYPES];
@@ -22,7 +24,7 @@ export interface SearchResultToken {
   type: 'token';
   name: string;
   symbol: string;
-  address: string;
+  address_hash: string;
   token_url: string;
   address_url: string;
   icon_url: string | null;
@@ -44,7 +46,7 @@ type SearchResultEnsInfo = {
 
 interface SearchResultAddressData {
   name: string | null;
-  address: string;
+  address_hash: string;
   is_smart_contract_verified: boolean;
   certified?: true;
   filecoin_robust_address?: string | null;
@@ -54,6 +56,11 @@ interface SearchResultAddressData {
 export interface SearchResultAddressOrContract extends SearchResultAddressData {
   type: 'address' | 'contract';
   ens_info?: SearchResultEnsInfo;
+}
+
+export interface SearchResultTacOperation {
+  type: 'tac_operation';
+  tac_operation: tac.OperationDetails;
 }
 
 export interface SearchResultMetadataTag extends SearchResultAddressData {
@@ -75,7 +82,7 @@ export interface SearchResultDomain extends SearchResultAddressData {
 
 export interface SearchResultLabel {
   type: 'label';
-  address: string;
+  address_hash: string;
   filecoin_robust_address?: string | null;
   name: string;
   is_smart_contract_verified: boolean;
@@ -120,14 +127,15 @@ export type SearchResultItem =
   SearchResultUserOp |
   SearchResultBlob |
   SearchResultDomain |
-  SearchResultMetadataTag;
+  SearchResultMetadataTag |
+  SearchResultTacOperation;
 
 export interface SearchResult {
   items: Array<SearchResultItem>;
   next_page_params: {
     address_hash: string | null;
     block_hash: string | null;
-    holder_count: number | null;
+    holders_count: number | null;
     inserted_at: string | null;
     item_type: SearchResultType;
     items_count: number;

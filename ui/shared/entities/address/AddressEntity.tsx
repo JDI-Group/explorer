@@ -3,14 +3,16 @@ import React from 'react';
 
 import type { AddressParam } from 'types/api/addressParams';
 
-import { route } from 'nextjs-routes';
+import { route } from 'nextjs/routes';
 
 import { toBech32Address } from 'lib/address/bech32';
 import { useAddressHighlightContext } from 'lib/contexts/addressHighlight';
 import { useSettingsContext } from 'lib/contexts/settings';
+import getIconUrl from 'lib/multichain/getIconUrl';
 import { Skeleton } from 'toolkit/chakra/skeleton';
 import { Tooltip } from 'toolkit/chakra/tooltip';
 import * as EntityBase from 'ui/shared/entities/base/components';
+import type { IconName } from 'ui/shared/IconSvg';
 
 import { distributeEntityProps, getContentProps, getIconProps } from '../base/utils';
 import AddressEntityContentProxy from './AddressEntityContentProxy';
@@ -43,10 +45,10 @@ const Icon = (props: IconProps) => {
     return null;
   }
 
-  const styles = {
-    ...getIconProps(props.variant),
-    marginRight: props.marginRight ?? 2,
-  };
+  const shield = props.shield ?? (props.chain ? { src: getIconUrl(props.chain) } : undefined);
+  const hintPostfix: string = props.hintPostfix ?? (props.chain ? ` on ${ props.chain.config.chain.name } (Chain ID: ${ props.chain.config.chain.id })` : '');
+
+  const styles = getIconProps(props, Boolean(shield));
 
   if (props.isLoading) {
     return <Skeleton { ...styles } loading borderRadius="full" flexShrink={ 0 }/>;
@@ -59,6 +61,7 @@ const Icon = (props: IconProps) => {
       return (
         <EntityBase.Icon
           { ...props }
+          shield={ shield }
           name="brands/safe"
         />
       );
@@ -66,36 +69,46 @@ const Icon = (props: IconProps) => {
 
     const isProxy = Boolean(props.address.implementations?.length);
     const isVerified = isProxy ? props.address.is_verified && props.address.implementations?.every(({ name }) => Boolean(name)) : props.address.is_verified;
-    const contractIconName: EntityBase.IconBaseProps['name'] = props.address.is_verified ? 'contracts/verified' : 'contracts/regular';
-    const label = (isVerified ? 'verified ' : '') + (isProxy ? 'proxy contract' : 'contract');
+    const contractIconName: IconName = props.address.is_verified ? 'contracts/verified' : 'contracts/regular';
+    const label = (isVerified ? 'verified ' : '') + (isProxy ? 'proxy contract' : 'contract') + hintPostfix;
 
     return (
-      <Tooltip content={ label.slice(0, 1).toUpperCase() + label.slice(1) }>
-        <span>
-          <EntityBase.Icon
-            { ...props }
-            name={ isProxy ? 'contracts/proxy' : contractIconName }
-            color={ isVerified ? 'green.500' : undefined }
-            borderRadius={ 0 }
-          />
-        </span>
-      </Tooltip>
+      <EntityBase.Icon
+        { ...props }
+        shield={ shield }
+        name={ isProxy ? 'contracts/proxy' : contractIconName }
+        color={ isVerified ? 'green.500' : undefined }
+        borderRadius={ 0 }
+        hint={ label.slice(0, 1).toUpperCase() + label.slice(1) }
+      />
     );
   }
 
   const label = (() => {
     if (isDelegatedAddress) {
-      return props.address.is_verified ? 'EOA + verified code' : 'EOA + code';
+      return (props.address.is_verified ? 'EOA + verified code' : 'EOA + code') + hintPostfix;
     }
+
+    if (props.chain) {
+      return 'Address' + hintPostfix;
+    }
+
+    return props.hint;
   })();
 
   return (
-    <Tooltip content={ label } disabled={ !label }>
+    <Tooltip
+      content={ label }
+      disabled={ !label }
+      interactive={ props.tooltipInteractive }
+      positioning={ shield ? { offset: { mainAxis: 8 } } : undefined }
+    >
       <Flex marginRight={ styles.marginRight } position="relative">
         <AddressIdenticon
           size={ props.variant === 'heading' ? 30 : 20 }
           hash={ getDisplayedAddress(props.address) }
         />
+        { shield && <EntityBase.IconShield { ...shield }/> }
         { isDelegatedAddress && <AddressIconDelegated isVerified={ Boolean(props.address.is_verified) }/> }
       </Flex>
     </Tooltip>
@@ -128,7 +141,12 @@ const Content = chakra((props: ContentProps) => {
     );
 
     return (
-      <Tooltip content={ label } contentProps={{ maxW: { base: 'calc(100vw - 8px)', lg: '400px' } }}>
+      <Tooltip
+        content={ label }
+        contentProps={{ maxW: { base: 'calc(100vw - 8px)', lg: '400px' } }}
+        triggerProps={{ minW: 0 }}
+        interactive={ props.tooltipInteractive }
+      >
         <Skeleton loading={ props.isLoading } overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap" { ...styles }>
           { nameText }
         </Skeleton>
@@ -172,9 +190,13 @@ const AddressEntity = (props: EntityProps) => {
   const partsProps = distributeEntityProps(props);
   const highlightContext = useAddressHighlightContext(props.noHighlight);
   const settingsContext = useSettingsContext();
+
   const altHash = !props.noAltHash && settingsContext?.addressFormat === 'bech32' ? toBech32Address(props.address.hash) : undefined;
 
-  const content = <Content { ...partsProps.content } altHash={ altHash }/>;
+  // inside highlight context all tooltips should be interactive
+  // because non-interactive ones will not pass 'onMouseLeave' event to the parent component
+  // see issue - https://github.com/chakra-ui/chakra-ui/issues/9939#issuecomment-2810567024
+  const content = <Content { ...partsProps.content } altHash={ altHash } tooltipInteractive={ Boolean(highlightContext) }/>;
 
   return (
     <Container
@@ -187,9 +209,9 @@ const AddressEntity = (props: EntityProps) => {
       position="relative"
       zIndex={ 0 }
     >
-      <Icon { ...partsProps.icon }/>
+      <Icon { ...partsProps.icon } tooltipInteractive={ Boolean(highlightContext) }/>
       { props.noLink ? content : <Link { ...partsProps.link }>{ content }</Link> }
-      <Copy { ...partsProps.copy } altHash={ altHash }/>
+      <Copy { ...partsProps.copy } altHash={ altHash } tooltipInteractive={ Boolean(highlightContext) }/>
     </Container>
   );
 };

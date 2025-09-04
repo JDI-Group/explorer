@@ -1,8 +1,11 @@
 import { chakra } from '@chakra-ui/react';
 import React from 'react';
 
-import { route } from 'nextjs-routes';
+import { route } from 'nextjs/routes';
 
+import { useMultichainContext } from 'lib/contexts/multichain';
+import getChainTooltipText from 'lib/multichain/getChainTooltipText';
+import getIconUrl from 'lib/multichain/getIconUrl';
 import * as EntityBase from 'ui/shared/entities/base/components';
 
 import { distributeEntityProps } from '../base/utils';
@@ -10,7 +13,10 @@ import { distributeEntityProps } from '../base/utils';
 type LinkProps = EntityBase.LinkBaseProps & Pick<EntityProps, 'hash'>;
 
 const Link = chakra((props: LinkProps) => {
-  const defaultHref = route({ pathname: '/tx/[hash]', query: { hash: props.hash } });
+  const defaultHref = route(
+    { pathname: '/tx/[hash]', query: { hash: props.hash } },
+    props.chain ? { chain: props.chain } : undefined,
+  );
 
   return (
     <EntityBase.Link
@@ -26,7 +32,9 @@ const Icon = (props: EntityBase.IconBaseProps) => {
   return (
     <EntityBase.Icon
       { ...props }
-      name={ props.name ?? 'transactions_slim' }
+      name={ 'name' in props ? props.name : 'transactions_slim' }
+      shield={ props.shield ?? (props.chain ? { src: getIconUrl(props.chain) } : undefined) }
+      hint={ props.chain ? getChainTooltipText(props.chain, 'Transaction on ') : undefined }
     />
   );
 };
@@ -63,7 +71,9 @@ export interface EntityProps extends EntityBase.EntityBaseProps {
 }
 
 const TxEntity = (props: EntityProps) => {
-  const partsProps = distributeEntityProps(props);
+  const multichainContext = useMultichainContext();
+  const partsProps = distributeEntityProps(props, multichainContext);
+
   const content = <Content { ...partsProps.content }/>;
 
   return (

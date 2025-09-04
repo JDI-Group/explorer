@@ -48,7 +48,7 @@ export default function ActivityTab() {
   const [ selectedTaskIndex, setSelectedTaskIndex ] = useState<number>(0);
 
   const profileQuery = useProfileQuery();
-  const checkActivityPassQuery = useApiQuery('rewards_user_check_activity_pass', {
+  const checkActivityPassQuery = useApiQuery('rewards:user_check_activity_pass', {
     queryOptions: {
       enabled: feature.isEnabled && Boolean(apiToken) && Boolean(profileQuery.data?.address_hash),
     },
@@ -56,14 +56,14 @@ export default function ActivityTab() {
       address: profileQuery.data?.address_hash ?? '',
     },
   });
-  const activityQuery = useApiQuery('rewards_user_activity', {
+  const activityQuery = useApiQuery('rewards:user_activity', {
     queryOptions: {
       enabled: Boolean(apiToken) && feature.isEnabled,
       placeholderData: USER_ACTIVITY,
     },
     fetchParams: { headers: { Authorization: `Bearer ${ apiToken }` } },
   });
-  const instancesQuery = useApiQuery('rewards_instances', {
+  const instancesQuery = useApiQuery('rewards:instances', {
     queryOptions: { enabled: feature.isEnabled },
   });
 
@@ -242,7 +242,7 @@ export default function ActivityTab() {
             order={{ base: 3, md: 'auto' }}
             px={{ base: 1.5, md: 0 }}
           >
-            <IconSvg name="status/warning" boxSize={ 6 } color="gray.500"/>
+            <IconSvg name="status/warning" boxSize={ 6 } color="icon.primary"/>
             <Text textStyle="sm">
               <chakra.span fontWeight="600">Your current Merit count is not final!</chakra.span><br/>
               Merits are calculated based on the activity of all users and may increase or decrease by the end of the weekly period.

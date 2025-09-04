@@ -1,4 +1,4 @@
-import { Grid, GridItem } from '@chakra-ui/react';
+import { GridItem } from '@chakra-ui/react';
 import type { UseQueryResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -58,14 +58,11 @@ const ArbitrumL2TxnBatchDetails = ({ query }: Props) => {
     return null;
   }
 
-  const blocksCount = data.end_block - data.start_block + 1;
+  const blocksCount = data.end_block_number - data.start_block_number + 1;
 
   return (
-    <Grid
-      columnGap={ 8 }
-      rowGap={{ base: 3, lg: 3 }}
+    <DetailedInfo.Container
       templateColumns={{ base: 'minmax(0, 1fr)', lg: 'minmax(min-content, 200px) minmax(0, 1fr)' }}
-      overflow="hidden"
     >
       <DetailedInfo.ItemLabel
         isLoading={ isPlaceholderData }
@@ -95,7 +92,7 @@ const ArbitrumL2TxnBatchDetails = ({ query }: Props) => {
       </DetailedInfo.ItemLabel>
       <DetailedInfo.ItemValue>
         { data.commitment_transaction.timestamp ?
-          <DetailedInfoTimestamp timestamp={ data.commitment_transaction.timestamp }isLoading={ isPlaceholderData }/> :
+          <DetailedInfoTimestamp timestamp={ data.commitment_transaction.timestamp } isLoading={ isPlaceholderData }/> :
           'Undefined'
         }
       </DetailedInfo.ItemValue>
@@ -172,9 +169,9 @@ const ArbitrumL2TxnBatchDetails = ({ query }: Props) => {
       </DetailedInfo.ItemLabel>
       <DetailedInfo.ItemValue flexWrap="nowrap" >
         <Skeleton loading={ isPlaceholderData } overflow="hidden">
-          <HashStringShortenDynamic hash={ data.before_acc }/>
+          <HashStringShortenDynamic hash={ data.before_acc_hash }/>
         </Skeleton>
-        <CopyToClipboard text={ data.before_acc } isLoading={ isPlaceholderData }/>
+        <CopyToClipboard text={ data.before_acc_hash } isLoading={ isPlaceholderData }/>
       </DetailedInfo.ItemValue>
 
       <DetailedInfo.ItemLabel
@@ -185,9 +182,9 @@ const ArbitrumL2TxnBatchDetails = ({ query }: Props) => {
       </DetailedInfo.ItemLabel>
       <DetailedInfo.ItemValue flexWrap="nowrap">
         <Skeleton loading={ isPlaceholderData } overflow="hidden">
-          <HashStringShortenDynamic hash={ data.after_acc }/>
+          <HashStringShortenDynamic hash={ data.after_acc_hash }/>
         </Skeleton>
-        <CopyToClipboard text={ data.after_acc } isLoading={ isPlaceholderData }/>
+        <CopyToClipboard text={ data.after_acc_hash } isLoading={ isPlaceholderData }/>
       </DetailedInfo.ItemValue>
 
       { (data.data_availability.batch_data_container === 'in_anytrust' || data.data_availability.batch_data_container === 'in_celestia') && (
@@ -207,7 +204,7 @@ const ArbitrumL2TxnBatchDetails = ({ query }: Props) => {
           ) }
         </CollapsibleDetails>
       ) }
-    </Grid>
+    </DetailedInfo.Container>
   );
 };
 

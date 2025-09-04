@@ -1,18 +1,18 @@
-import type { MarketplaceAppOverview } from 'types/client/marketplace';
+import type { MarketplaceApp } from 'types/client/marketplace';
 import type { SearchResultItem } from 'types/client/search';
 
 import config from 'configs/app';
 
-export type ApiCategory = 'token' | 'nft' | 'address' | 'public_tag' | 'transaction' | 'block' | 'user_operation' | 'blob' | 'domain';
+export type ApiCategory = 'token' | 'nft' | 'address' | 'public_tag' | 'transaction' | 'block' | 'user_operation' | 'blob' | 'domain' | 'tac_operation';
 export type Category = ApiCategory | 'app';
 
 export type ItemsCategoriesMap =
 Record<ApiCategory, Array<SearchResultItem>> &
-Record<'app', Array<MarketplaceAppOverview>>;
+Record<'app', Array<MarketplaceApp>>;
 
 export type SearchResultAppItem = {
   type: 'app';
-  app: MarketplaceAppOverview;
+  app: MarketplaceApp;
 };
 
 export const searchCategories: Array<{ id: Category; title: string }> = [
@@ -23,6 +23,7 @@ export const searchCategories: Array<{ id: Category; title: string }> = [
   { id: 'public_tag', title: 'Public tags' },
   { id: 'transaction', title: 'Transactions' },
   { id: 'block', title: 'Blocks' },
+  { id: 'tac_operation', title: 'Operations' },
 ];
 
 if (config.features.userOps.isEnabled) {
@@ -48,6 +49,7 @@ export const searchItemTitles: Record<Category, { itemTitle: string; itemTitleSh
   block: { itemTitle: 'Block', itemTitleShort: 'Block' },
   user_operation: { itemTitle: 'User operation', itemTitleShort: 'User op' },
   blob: { itemTitle: 'Blob', itemTitleShort: 'Blob' },
+  tac_operation: { itemTitle: 'Operations', itemTitleShort: 'Operations' },
 };
 
 export function getItemCategory(item: SearchResultItem | SearchResultAppItem): Category | undefined {
@@ -83,6 +85,9 @@ export function getItemCategory(item: SearchResultItem | SearchResultAppItem): C
     }
     case 'ens_domain': {
       return 'domain';
+    }
+    case 'tac_operation': {
+      return 'tac_operation';
     }
   }
 }

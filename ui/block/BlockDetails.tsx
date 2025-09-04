@@ -6,10 +6,11 @@ import React from 'react';
 
 import { ZKSYNC_L2_TX_BATCH_STATUSES } from 'types/api/zkSyncL2';
 
-import { route } from 'nextjs-routes';
+import { route, routeParams } from 'nextjs/routes';
 
 import config from 'configs/app';
 import getBlockReward from 'lib/block/getBlockReward';
+import { useMultichainContext } from 'lib/contexts/multichain';
 import getNetworkValidationActionText from 'lib/networks/getNetworkValidationActionText';
 import getNetworkValidatorTitle from 'lib/networks/getNetworkValidatorTitle';
 import * as arbitrum from 'lib/rollups/arbitrum';
@@ -53,6 +54,7 @@ const rollupFeature = config.features.rollup;
 const BlockDetails = ({ query }: Props) => {
   const router = useRouter();
   const heightOrHash = getQueryParamString(router.query.height_or_hash);
+  const multichainContext = useMultichainContext();
 
   const { data, isPlaceholderData } = query;
 
@@ -64,8 +66,8 @@ const BlockDetails = ({ query }: Props) => {
     const increment = direction === 'next' ? +1 : -1;
     const nextId = String(data.height + increment);
 
-    router.push({ pathname: '/block/[height_or_hash]', query: { height_or_hash: nextId } }, undefined);
-  }, [ data, router ]);
+    router.push(routeParams({ pathname: '/block/[height_or_hash]', query: { height_or_hash: nextId } }, multichainContext), undefined);
+  }, [ data, multichainContext, router ]);
 
   if (!data) {
     return null;
@@ -113,15 +115,15 @@ const BlockDetails = ({ query }: Props) => {
 
   const txsNum = (() => {
     const blockTxsNum = (
-      <Link href={ route({ pathname: '/block/[height_or_hash]', query: { height_or_hash: heightOrHash, tab: 'txs' } }) }>
-        { data.transaction_count } txn{ data.transaction_count === 1 ? '' : 's' }
+      <Link href={ route({ pathname: '/block/[height_or_hash]', query: { height_or_hash: heightOrHash, tab: 'txs' } }, multichainContext) }>
+        { data.transactions_count } txn{ data.transactions_count === 1 ? '' : 's' }
       </Link>
     );
 
     const blockBlobTxsNum = (config.features.dataAvailability.isEnabled && data.blob_transaction_count) ? (
       <>
         <span> including </span>
-        <Link href={ route({ pathname: '/block/[height_or_hash]', query: { height_or_hash: heightOrHash, tab: 'blob_txs' } }) }>
+        <Link href={ route({ pathname: '/block/[height_or_hash]', query: { height_or_hash: heightOrHash, tab: 'blob_txs' } }, multichainContext) }>
           { data.blob_transaction_count } blob txn{ data.blob_transaction_count === 1 ? '' : 's' }
         </Link>
       </>
@@ -179,7 +181,7 @@ const BlockDetails = ({ query }: Props) => {
             L1 block height
           </DetailedInfo.ItemLabel>
           <DetailedInfo.ItemValue>
-            <BlockEntityL1 isLoading={ isPlaceholderData } number={ data.arbitrum.l1_block_height }/>
+            <BlockEntityL1 isLoading={ isPlaceholderData } number={ data.arbitrum.l1_block_number }/>
           </DetailedInfo.ItemValue>
         </>
       ) }
@@ -209,8 +211,8 @@ const BlockDetails = ({ query }: Props) => {
             Batch
           </DetailedInfo.ItemLabel>
           <DetailedInfo.ItemValue columnGap={ 3 }>
-            { data.optimism.internal_id ?
-              <BatchEntityL2 isLoading={ isPlaceholderData } number={ data.optimism.internal_id }/> :
+            { data.optimism.number ?
+              <BatchEntityL2 isLoading={ isPlaceholderData } number={ data.optimism.number }/> :
               <Skeleton loading={ isPlaceholderData }>Pending</Skeleton> }
             { data.optimism.batch_data_container && (
               <OptimisticL2TxnBatchDA
@@ -222,17 +224,21 @@ const BlockDetails = ({ query }: Props) => {
         </>
       ) }
 
-      <DetailedInfo.ItemLabel
-        hint="Size of the block in bytes"
-        isLoading={ isPlaceholderData }
-      >
-        Size
-      </DetailedInfo.ItemLabel>
-      <DetailedInfo.ItemValue>
-        <Skeleton loading={ isPlaceholderData }>
-          { data.size.toLocaleString() }
-        </Skeleton>
-      </DetailedInfo.ItemValue>
+      { data.size && (
+        <>
+          <DetailedInfo.ItemLabel
+            hint="Size of the block in bytes"
+            isLoading={ isPlaceholderData }
+          >
+            Size
+          </DetailedInfo.ItemLabel>
+          <DetailedInfo.ItemValue>
+            <Skeleton loading={ isPlaceholderData }>
+              { data.size.toLocaleString() }
+            </Skeleton>
+          </DetailedInfo.ItemValue>
+        </>
+      ) }
 
       <DetailedInfo.ItemLabel
         hint="Date & time at which block was produced."
@@ -266,7 +272,7 @@ const BlockDetails = ({ query }: Props) => {
           </DetailedInfo.ItemLabel>
           <DetailedInfo.ItemValue>
             <Skeleton loading={ isPlaceholderData }>
-              <Link href={ route({ pathname: '/block/[height_or_hash]', query: { height_or_hash: heightOrHash, tab: 'withdrawals' } }) }>
+              <Link href={ route({ pathname: '/block/[height_or_hash]', query: { height_or_hash: heightOrHash, tab: 'withdrawals' } }, multichainContext) }>
                 { data.withdrawals_count } withdrawal{ data.withdrawals_count === 1 ? '' : 's' }
               </Link>
             </Skeleton>
@@ -378,7 +384,7 @@ const BlockDetails = ({ query }: Props) => {
           >
             Block reward
           </DetailedInfo.ItemLabel>
-          <DetailedInfo.ItemValue columnGap={ 1 }>
+          <DetailedInfo.ItemValue columnGap={ 1 } multiRow>
             <Skeleton loading={ isPlaceholderData }>
               { totalReward.dividedBy(WEI).toFixed() } { currencyUnits.ether }
             </Skeleton>
@@ -505,8 +511,8 @@ const BlockDetails = ({ query }: Props) => {
             Burnt fees
           </DetailedInfo.ItemLabel>
           <DetailedInfo.ItemValue>
-            <IconSvg name="flame" boxSize={ 5 } color="gray.500" isLoading={ isPlaceholderData }/>
-            <Skeleton loading={ isPlaceholderData } ml={ 2 }>
+            <IconSvg name="flame" boxSize={ 5 } color="icon.primary" isLoading={ isPlaceholderData }/>
+            <Skeleton loading={ isPlaceholderData } ml={{ base: 1, lg: 2 }}>
               { burntFees.dividedBy(WEI).toFixed() } { currencyUnits.ether }
             </Skeleton>
             { !txFees.isEqualTo(ZERO) && (
@@ -621,15 +627,20 @@ const BlockDetails = ({ query }: Props) => {
           </>
         ) }
 
-        <DetailedInfo.ItemLabel
-          hint={ `Block difficulty for ${ validatorTitle }, used to calibrate block generation time` }
-        >
-          Difficulty
-        </DetailedInfo.ItemLabel>
-        <DetailedInfo.ItemValue overflow="hidden">
-          <HashStringShortenDynamic hash={ BigNumber(data.difficulty).toFormat() }/>
-        </DetailedInfo.ItemValue>
-
+        { data.difficulty && (
+          <>
+            <DetailedInfo.ItemLabel
+              hint={ `Block difficulty for ${ validatorTitle }, used to calibrate block generation time` }
+            >
+              Difficulty
+            </DetailedInfo.ItemLabel>
+            <DetailedInfo.ItemValue>
+              <Box overflow="hidden">
+                <HashStringShortenDynamic hash={ BigNumber(data.difficulty).toFormat() }/>
+              </Box>
+            </DetailedInfo.ItemValue>
+          </>
+        ) }
         { data.total_difficulty && (
           <>
             <DetailedInfo.ItemLabel
@@ -637,8 +648,10 @@ const BlockDetails = ({ query }: Props) => {
             >
               Total difficulty
             </DetailedInfo.ItemLabel>
-            <DetailedInfo.ItemValue overflow="hidden">
-              <HashStringShortenDynamic hash={ BigNumber(data.total_difficulty).toFormat() }/>
+            <DetailedInfo.ItemValue>
+              <Box overflow="hidden">
+                <HashStringShortenDynamic hash={ BigNumber(data.total_difficulty).toFormat() }/>
+              </Box>
             </DetailedInfo.ItemValue>
           </>
         ) }
@@ -666,7 +679,7 @@ const BlockDetails = ({ query }: Props) => {
             </DetailedInfo.ItemLabel>
             <DetailedInfo.ItemValue flexWrap="nowrap">
               <Link
-                href={ route({ pathname: '/block/[height_or_hash]', query: { height_or_hash: String(data.height - 1) } }) }
+                href={ route({ pathname: '/block/[height_or_hash]', query: { height_or_hash: String(data.height - 1) } }, multichainContext) }
                 overflow="hidden"
                 whiteSpace="nowrap"
               >
@@ -679,7 +692,7 @@ const BlockDetails = ({ query }: Props) => {
           </>
         ) }
 
-        { rollupFeature.isEnabled && rollupFeature.type === 'arbitrum' && data.arbitrum && (
+        { rollupFeature.isEnabled && rollupFeature.type === 'arbitrum' && data.arbitrum && data.arbitrum.send_count && (
           <>
             <DetailedInfo.ItemLabel
               hint="The cumulative number of L2 to L1 transactions as of this block"

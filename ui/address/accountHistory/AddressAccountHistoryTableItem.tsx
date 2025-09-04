@@ -8,7 +8,7 @@ import { Skeleton } from 'toolkit/chakra/skeleton';
 import { TableCell, TableRow } from 'toolkit/chakra/table';
 import IconSvg from 'ui/shared/IconSvg';
 import NovesFromTo from 'ui/shared/Noves/NovesFromTo';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 
 type Props = {
   isPlaceholderData: boolean;
@@ -27,7 +27,7 @@ const AddressAccountHistoryTableItem = (props: Props) => {
   return (
     <TableRow>
       <TableCell px={ 3 } py="18px" fontSize="sm" >
-        <TimeAgoWithTooltip
+        <TimeWithTooltip
           timestamp={ props.tx.rawTransactionData.timestamp * 1000 }
           isLoading={ props.isPlaceholderData }
           color="text.secondary"
@@ -42,9 +42,8 @@ const AddressAccountHistoryTableItem = (props: Props) => {
               name="lightning"
               height="5"
               width="5"
-              color="gray.500"
+              color="icon.primary"
               mr="8px"
-              _dark={{ color: 'gray.400' }}
             />
 
             <Link

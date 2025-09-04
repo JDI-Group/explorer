@@ -24,6 +24,7 @@ import * as AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import * as BlobEntity from 'ui/shared/entities/blob/BlobEntity';
 import * as BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import * as EnsEntity from 'ui/shared/entities/ens/EnsEntity';
+import * as OperationEntity from 'ui/shared/entities/operation/OperationEntity';
 import * as TokenEntity from 'ui/shared/entities/token/TokenEntity';
 import * as TxEntity from 'ui/shared/entities/tx/TxEntity';
 import * as UserOpEntity from 'ui/shared/entities/userOp/UserOpEntity';
@@ -31,6 +32,7 @@ import HashStringShortenDynamic from 'ui/shared/HashStringShortenDynamic';
 import IconSvg from 'ui/shared/IconSvg';
 import type { SearchResultAppItem } from 'ui/shared/search/utils';
 import { getItemCategory, searchItemTitles } from 'ui/shared/search/utils';
+import TacOperationStatus from 'ui/shared/statusTag/TacOperationStatus';
 
 import SearchResultEntityTag from './SearchResultEntityTag';
 
@@ -58,7 +60,7 @@ const SearchResultTableItem = ({ data, searchTerm, isLoading, addressFormat }: P
     switch (data.type) {
       case 'token': {
         const name = data.name + (data.symbol ? ` (${ data.symbol })` : '');
-        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address) : data.address);
+        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address_hash) : data.address_hash);
 
         return (
           <>
@@ -66,7 +68,7 @@ const SearchResultTableItem = ({ data, searchTerm, isLoading, addressFormat }: P
               <Flex alignItems="center">
                 <TokenEntity.Icon token={{ ...data, type: data.token_type }} isLoading={ isLoading }/>
                 <Link
-                  href={ route({ pathname: '/token/[hash]', query: { hash: data.address } }) }
+                  href={ route({ pathname: '/token/[hash]', query: { hash: data.address_hash } }) }
                   fontWeight={ 700 }
                   wordBreak="break-all"
                   overflow="hidden"
@@ -111,7 +113,7 @@ const SearchResultTableItem = ({ data, searchTerm, isLoading, addressFormat }: P
         const shouldHighlightHash = ADDRESS_REGEXP.test(searchTerm);
         const addressName = data.name || data.ens_info?.name;
         const address = {
-          hash: data.address,
+          hash: data.address_hash,
           filecoin: {
             robust: data.filecoin_robust_address,
           },
@@ -122,7 +124,7 @@ const SearchResultTableItem = ({ data, searchTerm, isLoading, addressFormat }: P
           ens_domain_name: null,
         };
         const expiresText = data.ens_info?.expiry_date ? ` (expires ${ dayjs(data.ens_info.expiry_date).fromNow() })` : '';
-        const hash = addressFormat === 'bech32' ? toBech32Address(data.address) : data.address;
+        const hash = addressFormat === 'bech32' ? toBech32Address(data.address_hash) : data.address_hash;
 
         return (
           <>
@@ -175,15 +177,15 @@ const SearchResultTableItem = ({ data, searchTerm, isLoading, addressFormat }: P
       }
 
       case 'label': {
-        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address) : data.address);
+        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address_hash) : data.address_hash);
 
         return (
           <>
             <TableCell>
               <Flex alignItems="center">
-                <IconSvg name="publictags_slim" boxSize={ 6 } mr={ 2 } color="gray.500"/>
+                <IconSvg name="publictags_slim" boxSize={ 6 } mr={ 2 } color="icon.primary"/>
                 <Link
-                  href={ route({ pathname: '/address/[hash]', query: { hash: data.address } }) }
+                  href={ route({ pathname: '/address/[hash]', query: { hash: data.address_hash } }) }
                   fontWeight={ 700 }
                   wordBreak="break-all"
                   loading={ isLoading }
@@ -324,6 +326,35 @@ const SearchResultTableItem = ({ data, searchTerm, isLoading, addressFormat }: P
         );
       }
 
+      case 'tac_operation': {
+        return (
+          <>
+            <TableCell colSpan={ 2 } fontSize="sm">
+              <OperationEntity.Container>
+                <OperationEntity.Icon type={ data.tac_operation.type }/>
+                <OperationEntity.Link
+                  isLoading={ isLoading }
+                  id={ data.tac_operation.operation_id }
+                  onClick={ handleLinkClick }
+                >
+                  <OperationEntity.Content
+                    asProp="mark"
+                    id={ data.tac_operation.operation_id }
+                    textStyle="sm"
+                    fontWeight={ 700 }
+                    mr={ 2 }
+                  />
+                </OperationEntity.Link>
+                <TacOperationStatus status={ data.tac_operation.type }/>
+              </OperationEntity.Container>
+            </TableCell>
+            <TableCell fontSize="sm" verticalAlign="middle" isNumeric>
+              <Text color="text.secondary">{ dayjs(data.tac_operation.timestamp).format('llll') }</Text>
+            </TableCell>
+          </>
+        );
+      }
+
       case 'blob': {
         return (
           <TableCell colSpan={ 3 } fontSize="sm">
@@ -375,7 +406,7 @@ const SearchResultTableItem = ({ data, searchTerm, isLoading, addressFormat }: P
 
       case 'ens_domain': {
         const expiresText = data.ens_info?.expiry_date ? ` expires ${ dayjs(data.ens_info.expiry_date).fromNow() }` : '';
-        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address) : data.address);
+        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address_hash) : data.address_hash);
 
         return (
           <>
@@ -383,7 +414,7 @@ const SearchResultTableItem = ({ data, searchTerm, isLoading, addressFormat }: P
               <EnsEntity.Container>
                 <EnsEntity.Icon protocol={ data.ens_info.protocol }/>
                 <Link
-                  href={ route({ pathname: '/address/[hash]', query: { hash: data.address } }) }
+                  href={ route({ pathname: '/address/[hash]', query: { hash: data.address_hash } }) }
                   fontWeight={ 700 }
                   wordBreak="break-all"
                   loading={ isLoading }

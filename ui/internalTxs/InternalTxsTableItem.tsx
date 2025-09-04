@@ -3,19 +3,21 @@ import BigNumber from 'bignumber.js';
 import React from 'react';
 
 import type { InternalTransaction } from 'types/api/internalTransaction';
+import type { ChainConfig } from 'types/multichain';
 
 import config from 'configs/app';
 import { Badge } from 'toolkit/chakra/badge';
-import { Skeleton } from 'toolkit/chakra/skeleton';
 import { TableCell, TableRow } from 'toolkit/chakra/table';
+import ChainIcon from 'ui/optimismSuperchain/components/ChainIcon';
 import AddressFromTo from 'ui/shared/address/AddressFromTo';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import TxStatus from 'ui/shared/statusTag/TxStatus';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
+import TruncatedValue from 'ui/shared/TruncatedValue';
 import { TX_INTERNALS_ITEMS } from 'ui/tx/internals/utils';
 
-type Props = InternalTransaction & { currentAddress?: string; isLoading?: boolean };
+type Props = InternalTransaction & { currentAddress?: string; isLoading?: boolean; showBlockInfo?: boolean; chainData?: ChainConfig };
 
 const InternalTxsTableItem = ({
   type,
@@ -30,12 +32,19 @@ const InternalTxsTableItem = ({
   timestamp,
   currentAddress,
   isLoading,
+  showBlockInfo = true,
+  chainData,
 }: Props) => {
   const typeTitle = TX_INTERNALS_ITEMS.find(({ id }) => id === type)?.title;
   const toData = to ? to : createdContract;
 
   return (
     <TableRow alignItems="top">
+      { chainData && (
+        <TableCell>
+          <ChainIcon data={ chainData } isLoading={ isLoading } my="3px"/>
+        </TableCell>
+      ) }
       <TableCell verticalAlign="middle">
         <Flex rowGap={ 3 } flexDir="column">
           <TxEntity
@@ -45,13 +54,14 @@ const InternalTxsTableItem = ({
             noIcon
             truncation="constant_long"
           />
-          <TimeAgoWithTooltip
+          <TimeWithTooltip
             timestamp={ timestamp }
             enableIncrement
             isLoading={ isLoading }
             color="text.secondary"
             fontWeight="400"
             fontSize="sm"
+            w="fit-content"
           />
         </Flex>
       </TableCell>
@@ -63,15 +73,17 @@ const InternalTxsTableItem = ({
           <TxStatus status={ success ? 'ok' : 'error' } errorText={ error } isLoading={ isLoading }/>
         </Flex>
       </TableCell>
-      <TableCell verticalAlign="middle">
-        <BlockEntity
-          isLoading={ isLoading }
-          number={ blockNumber }
-          noIcon
-          textStyle="sm"
-          fontWeight={ 500 }
-        />
-      </TableCell>
+      { showBlockInfo && (
+        <TableCell verticalAlign="middle">
+          <BlockEntity
+            isLoading={ isLoading }
+            number={ blockNumber }
+            noIcon
+            textStyle="sm"
+            fontWeight={ 500 }
+          />
+        </TableCell>
+      ) }
       <TableCell verticalAlign="middle">
         <AddressFromTo
           from={ from }
@@ -81,9 +93,13 @@ const InternalTxsTableItem = ({
         />
       </TableCell>
       <TableCell isNumeric verticalAlign="middle">
-        <Skeleton loading={ isLoading } display="inline-block" minW={ 6 }>
-          { BigNumber(value).div(BigNumber(10 ** config.chain.currency.decimals)).toFormat() }
-        </Skeleton>
+        <TruncatedValue
+          value={ BigNumber(value).div(BigNumber(10 ** config.chain.currency.decimals)).toFormat() }
+          isLoading={ isLoading }
+          minW={ 6 }
+          maxW="100%"
+          verticalAlign="middle"
+        />
       </TableCell>
     </TableRow>
   );

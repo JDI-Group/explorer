@@ -1,19 +1,15 @@
-import { Box } from '@chakra-ui/react';
 import type { UseQueryResult } from '@tanstack/react-query';
-import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type { Channel } from 'phoenix';
 import React from 'react';
 
-import type { SocketMessage } from 'lib/socket/types';
 import type { Address } from 'types/api/address';
 import type { AddressImplementation } from 'types/api/addressParams';
 import type { SmartContract } from 'types/api/contract';
 
 import type { ResourceError } from 'lib/api/resources';
-import useApiQuery, { getResourceKey } from 'lib/api/useApiQuery';
+import useApiQuery from 'lib/api/useApiQuery';
 import getQueryParamString from 'lib/router/getQueryParamString';
-import useSocketMessage from 'lib/socket/useSocketMessage';
 import * as stubs from 'stubs/contract';
 import RoutedTabs from 'toolkit/components/RoutedTabs/RoutedTabs';
 import DataFetchAlert from 'ui/shared/DataFetchAlert';
@@ -36,55 +32,44 @@ const ContractDetails = ({ addressData, channel, mainContractQuery }: Props) => 
   const router = useRouter();
   const sourceAddress = getQueryParamString(router.query.source_address);
 
-  const queryClient = useQueryClient();
-
   const sourceItems: Array<AddressImplementation> = React.useMemo(() => {
     const currentAddressDefaultName = addressData?.proxy_type === 'eip7702' ? 'Current address' : 'Current contract';
-    const currentAddressItem = { address: addressData.hash, name: addressData?.name || currentAddressDefaultName };
+    const currentAddressItem = { address_hash: addressData.hash, name: addressData?.name || currentAddressDefaultName };
     if (!addressData || !addressData.implementations || addressData.implementations.length === 0) {
       return [ currentAddressItem ];
     }
 
     return [
       currentAddressItem,
-      ...(addressData?.implementations.filter((item) => item.address !== addressData.hash && item.name) || []),
+      ...(addressData?.implementations.filter((item) => item.address_hash !== addressData.hash && item.name) || []),
     ];
   }, [ addressData ]);
 
-  const [ selectedItem, setSelectedItem ] = React.useState(sourceItems.find((item) => item.address === sourceAddress) || sourceItems[0]);
+  const [ selectedItem, setSelectedItem ] = React.useState<AddressImplementation | undefined>(undefined);
 
-  const contractQuery = useApiQuery('contract', {
-    pathParams: { hash: selectedItem?.address },
+  React.useEffect(() => {
+    if (!mainContractQuery.isPlaceholderData) {
+      setSelectedItem(sourceItems.find((item) => item.address_hash === sourceAddress) || sourceItems[0]);
+    }
+  }, [ mainContractQuery.isPlaceholderData, sourceAddress, sourceItems ]);
+
+  const contractQuery = useApiQuery('general:contract', {
+    pathParams: { hash: selectedItem?.address_hash },
     queryOptions: {
-      enabled: Boolean(selectedItem?.address && !mainContractQuery.isPlaceholderData),
+      enabled: Boolean(selectedItem?.address_hash && !mainContractQuery.isPlaceholderData && selectedItem.address_hash !== addressData.hash),
       refetchOnMount: false,
       placeholderData: addressData?.is_verified ? stubs.CONTRACT_CODE_VERIFIED : stubs.CONTRACT_CODE_UNVERIFIED,
     },
   });
-  const { data, isPlaceholderData, isError } = contractQuery;
+  const { data, isPlaceholderData, isError } = selectedItem?.address_hash !== addressData.hash ? contractQuery : mainContractQuery;
 
-  const tabs = useContractDetailsTabs({ data, isLoading: isPlaceholderData, addressData, sourceAddress: selectedItem.address });
-
-  const handleContractWasVerifiedMessage: SocketMessage.SmartContractWasVerified['handler'] = React.useCallback(() => {
-    queryClient.refetchQueries({
-      queryKey: getResourceKey('address', { pathParams: { hash: addressData.hash } }),
-    });
-    queryClient.refetchQueries({
-      queryKey: getResourceKey('contract', { pathParams: { hash: addressData.hash } }),
-    });
-  }, [ addressData.hash, queryClient ]);
-
-  useSocketMessage({
-    channel,
-    event: 'smart_contract_was_verified',
-    handler: handleContractWasVerifiedMessage,
-  });
+  const tabs = useContractDetailsTabs({ data, isLoading: isPlaceholderData, addressData, sourceAddress: selectedItem?.address_hash });
 
   if (isError) {
     return <DataFetchAlert/>;
   }
 
-  const addressSelector = sourceItems.length > 1 ? (
+  const addressSelector = sourceItems.length > 1 && selectedItem ? (
     <ContractSourceAddressSelector
       isLoading={ mainContractQuery.isPlaceholderData }
       label="Source code"
@@ -107,25 +92,18 @@ const ContractDetails = ({ addressData, channel, mainContractQuery }: Props) => 
         <ContractDetailsInfo
           data={ mainContractQuery.data }
           isLoading={ mainContractQuery.isPlaceholderData }
-          addressHash={ addressData.hash }
+          addressData={ addressData }
         />
       ) }
-      { tabs.length > 1 ? (
-        <RoutedTabs
-          tabs={ tabs }
-          isLoading={ isPlaceholderData }
-          variant="segmented"
-          size="sm"
-          leftSlot={ addressSelector }
-          listProps={ TAB_LIST_PROPS }
-          leftSlotProps={ LEFT_SLOT_PROPS }
-        />
-      ) : (
-        <>
-          { addressSelector && <Box mb={ 6 }>{ addressSelector }</Box> }
-          <div>{ tabs[0].component }</div>
-        </>
-      ) }
+      <RoutedTabs
+        tabs={ tabs }
+        isLoading={ isPlaceholderData }
+        variant="segmented"
+        size="sm"
+        leftSlot={ addressSelector }
+        listProps={ TAB_LIST_PROPS }
+        leftSlotProps={ LEFT_SLOT_PROPS }
+      />
     </>
   );
 };

@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js';
 import React from 'react';
 
 import type { AddressCoinBalanceHistoryItem } from 'types/api/address';
+import type { ChainConfig } from 'types/multichain';
 
 import { currencyUnits } from 'lib/units';
 import { Skeleton } from 'toolkit/chakra/skeleton';
@@ -10,11 +11,12 @@ import { WEI, ZERO } from 'toolkit/utils/consts';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import ListItemMobile from 'ui/shared/ListItemMobile/ListItemMobile';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 
 type Props = AddressCoinBalanceHistoryItem & {
   page: number;
   isLoading: boolean;
+  chainData?: ChainConfig;
 };
 
 const AddressCoinBalanceListItem = (props: Props) => {
@@ -41,8 +43,9 @@ const AddressCoinBalanceListItem = (props: Props) => {
         <BlockEntity
           isLoading={ props.isLoading }
           number={ props.block_number }
-          noIcon
+          noIcon={ !props.chainData }
           fontWeight={ 700 }
+          chain={ props.chainData }
         />
       </Flex>
       { props.transaction_hash && (
@@ -59,7 +62,7 @@ const AddressCoinBalanceListItem = (props: Props) => {
       ) }
       <Flex columnGap={ 2 } w="100%">
         <Skeleton loading={ props.isLoading } fontWeight={ 500 } flexShrink={ 0 }>Age</Skeleton>
-        <TimeAgoWithTooltip
+        <TimeWithTooltip
           timestamp={ props.block_timestamp }
           enableIncrement={ props.page === 1 }
           isLoading={ props.isLoading }

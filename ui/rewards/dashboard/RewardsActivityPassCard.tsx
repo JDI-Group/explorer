@@ -7,14 +7,13 @@ import { Heading } from 'toolkit/chakra/heading';
 import { Image } from 'toolkit/chakra/image';
 import { Link } from 'toolkit/chakra/link';
 
-const feature = config.features.rewards;
-
 export default function RewardsActivityPassCard() {
   const { rewardsConfigQuery } = useRewardsContext();
   const backgroundImage = useColorModeValue('/static/merits/cells.svg', '/static/merits/cells_dark.svg');
 
-  const activityPassUrl = feature.isEnabled ?
-    `${ feature.api.endpoint }/?tab=spend&id=${ rewardsConfigQuery.data?.rewards?.blockscout_activity_pass_id }&utm_source=blockscout&utm_medium=tasks` :
+  const activityPassUrl = config.apis.rewards ?
+    // eslint-disable-next-line max-len
+    `${ config.apis.rewards.endpoint }/?tab=spend&id=${ rewardsConfigQuery.data?.rewards?.blockscout_activity_pass_id }&utm_source=blockscout&utm_medium=tasks` :
     undefined;
 
   return (
@@ -80,7 +79,7 @@ export default function RewardsActivityPassCard() {
           backgroundColor={{ _light: '#FFD57C', _dark: '#FFBA0D' }}
           color="#2B1A3F"
           iconColor="rgba(43, 26, 63, 0.3)"
-          _hover={{ color: 'link.primary.hover' }}
+          _hover={{ color: 'hover' }}
           flexShrink={ 0 }
           zIndex={ 1 }
         >

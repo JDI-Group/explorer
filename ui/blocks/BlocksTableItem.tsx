@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js';
 import React from 'react';
 
 import type { Block } from 'types/api/block';
+import type { ChainConfig } from 'types/multichain';
 
 import { route } from 'nextjs-routes';
 
@@ -13,11 +14,12 @@ import { Skeleton } from 'toolkit/chakra/skeleton';
 import { TableCell, TableRow } from 'toolkit/chakra/table';
 import { Tooltip } from 'toolkit/chakra/tooltip';
 import { WEI } from 'toolkit/utils/consts';
+import ChainIcon from 'ui/optimismSuperchain/components/ChainIcon';
 import BlockGasUsed from 'ui/shared/block/BlockGasUsed';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import IconSvg from 'ui/shared/IconSvg';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 import Utilization from 'ui/shared/Utilization/Utilization';
 
 import { getBaseFeeValue } from './utils';
@@ -27,22 +29,28 @@ interface Props {
   isLoading?: boolean;
   animation?: string;
   enableTimeIncrement?: boolean;
+  chainData?: ChainConfig;
 }
 
 const isRollup = config.features.rollup.isEnabled;
 
-const BlocksTableItem = ({ data, isLoading, enableTimeIncrement, animation }: Props) => {
+const BlocksTableItem = ({ data, isLoading, enableTimeIncrement, animation, chainData }: Props) => {
   const totalReward = getBlockTotalReward(data);
   const burntFees = BigNumber(data.burnt_fees || 0);
   const txFees = BigNumber(data.transaction_fees || 0);
-  const baseFeeValue = getBaseFeeValue(data.base_fee_per_gas);
+  const baseFeeValue = getBaseFeeValue(data.base_fee_per_gas || null);
 
   return (
     <TableRow animation={ animation }>
+      { chainData && (
+        <TableCell>
+          <ChainIcon data={ chainData } isLoading={ isLoading }/>
+        </TableCell>
+      ) }
       <TableCell >
         <Flex columnGap={ 2 } alignItems="center" mb={ 2 }>
-          { data.celo?.is_epoch_block && (
-            <Tooltip content={ `Finalized epoch #${ data.celo.epoch_number }` }>
+          { data.celo?.l1_era_finalized_epoch_number && (
+            <Tooltip content={ `Finalized epoch #${ data.celo.l1_era_finalized_epoch_number }` }>
               <IconSvg name="checkered_flag" boxSize={ 5 } p="1px" isLoading={ isLoading } flexShrink={ 0 }/>
             </Tooltip>
           ) }
@@ -58,7 +66,7 @@ const BlocksTableItem = ({ data, isLoading, enableTimeIncrement, animation }: Pr
             </span>
           </Tooltip>
         </Flex>
-        <TimeAgoWithTooltip
+        <TimeWithTooltip
           timestamp={ data.timestamp }
           enableIncrement={ enableTimeIncrement }
           isLoading={ isLoading }
@@ -69,7 +77,7 @@ const BlocksTableItem = ({ data, isLoading, enableTimeIncrement, animation }: Pr
       </TableCell>
       <TableCell >
         <Skeleton loading={ isLoading } display="inline-block">
-          { data.size.toLocaleString() }
+          { data.size?.toLocaleString() || 'N/A' }
         </Skeleton>
       </TableCell>
       { !config.UI.views.block.hiddenFields?.miner && (
@@ -83,16 +91,16 @@ const BlocksTableItem = ({ data, isLoading, enableTimeIncrement, animation }: Pr
         </TableCell>
       ) }
       <TableCell isNumeric >
-        { data.transaction_count > 0 ? (
+        { data.transactions_count > 0 ? (
           <Skeleton loading={ isLoading } display="inline-block">
             <Link href={ route({
               pathname: '/block/[height_or_hash]',
               query: { height_or_hash: String(data.height), tab: 'txs' },
             }) }>
-              { data.transaction_count }
+              { data.transactions_count }
             </Link>
           </Skeleton>
-        ) : data.transaction_count }
+        ) : data.transactions_count }
       </TableCell>
       <TableCell >
         <Skeleton loading={ isLoading } display="inline-block">{ BigNumber(data.gas_used || 0).toFormat() }</Skeleton>

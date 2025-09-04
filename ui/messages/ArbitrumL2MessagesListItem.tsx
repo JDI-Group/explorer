@@ -14,7 +14,7 @@ import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import TxEntityL1 from 'ui/shared/entities/tx/TxEntityL1';
 import ListItemMobileGrid from 'ui/shared/ListItemMobile/ListItemMobileGrid';
 import ArbitrumL2MessageStatus from 'ui/shared/statusTag/ArbitrumL2MessageStatus';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 
 import type { MessagesDirection } from './ArbitrumL2Messages';
 
@@ -53,7 +53,7 @@ const ArbitrumL2MessagesListItem = ({ item, isLoading, direction }: Props) => {
           <ListItemMobileGrid.Label isLoading={ isLoading }>From</ListItemMobileGrid.Label>
           <ListItemMobileGrid.Value>
             <AddressEntity
-              address={{ hash: item.origination_address }}
+              address={{ hash: item.origination_address_hash }}
               truncation="constant"
               isLoading={ isLoading }
               fontWeight={ 600 }
@@ -88,7 +88,7 @@ const ArbitrumL2MessagesListItem = ({ item, isLoading, direction }: Props) => {
         <>
           <ListItemMobileGrid.Label isLoading={ isLoading }>Age</ListItemMobileGrid.Label>
           <ListItemMobileGrid.Value>
-            <TimeAgoWithTooltip
+            <TimeWithTooltip
               timestamp={ item.origination_timestamp }
               isLoading={ isLoading }
               display="inline-block"

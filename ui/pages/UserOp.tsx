@@ -7,14 +7,11 @@ import type { Log } from 'types/api/log';
 import type { TokenTransfer } from 'types/api/tokenTransfer';
 
 import useApiQuery from 'lib/api/useApiQuery';
-import { useAppContext } from 'lib/contexts/app';
 import throwOnAbsentParamError from 'lib/errors/throwOnAbsentParamError';
 import throwOnResourceLoadError from 'lib/errors/throwOnResourceLoadError';
 import getQueryParamString from 'lib/router/getQueryParamString';
 import { USER_OP } from 'stubs/userOps';
 import RoutedTabs from 'toolkit/components/RoutedTabs/RoutedTabs';
-import RoutedTabsSkeleton from 'toolkit/components/RoutedTabs/RoutedTabsSkeleton';
-import useActiveTabFromQuery from 'toolkit/components/RoutedTabs/useActiveTabFromQuery';
 import TextAd from 'ui/shared/ad/TextAd';
 import PageTitle from 'ui/shared/Page/PageTitle';
 import TxLogs from 'ui/tx/TxLogs';
@@ -26,10 +23,9 @@ import UserOpSubHeading from 'ui/userOp/UserOpSubHeading';
 
 const UserOp = () => {
   const router = useRouter();
-  const appProps = useAppContext();
   const hash = getQueryParamString(router.query.hash);
 
-  const userOpQuery = useApiQuery('user_op', {
+  const userOpQuery = useApiQuery('general:user_op', {
     pathParams: { hash },
     queryOptions: {
       enabled: Boolean(hash),
@@ -82,21 +78,6 @@ const UserOp = () => {
     { id: 'raw', title: 'Raw', component: <UserOpRaw rawData={ userOpQuery.data?.raw } isLoading={ userOpQuery.isPlaceholderData }/> },
   ]), [ userOpQuery, txQuery, filterTokenTransfersByLogIndex, filterLogsByLogIndex ]);
 
-  const activeTab = useActiveTabFromQuery(tabs);
-
-  const backLink = React.useMemo(() => {
-    const hasGoBackLink = appProps.referrer && appProps.referrer.includes('/ops');
-
-    if (!hasGoBackLink) {
-      return;
-    }
-
-    return {
-      label: 'Back to user operations list',
-      url: appProps.referrer,
-    };
-  }, [ appProps.referrer ]);
-
   throwOnAbsentParamError(hash);
   throwOnResourceLoadError(userOpQuery);
 
@@ -107,16 +88,9 @@ const UserOp = () => {
       <TextAd mb={ 6 }/>
       <PageTitle
         title="User operation details"
-        backLink={ backLink }
         secondRow={ titleSecondRow }
       />
-      { userOpQuery.isPlaceholderData ? (
-        <>
-          <RoutedTabsSkeleton tabs={ tabs } mt={ 6 }/>
-          { activeTab?.component }
-        </>
-      ) :
-        <RoutedTabs tabs={ tabs }/> }
+      <RoutedTabs tabs={ tabs } isLoading={ userOpQuery.isPlaceholderData }/>
     </>
   );
 };

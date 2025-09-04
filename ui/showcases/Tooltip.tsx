@@ -15,13 +15,8 @@ const TooltipShowcase = () => {
             <Tooltip content="Tooltip content">
               <span>Default</span>
             </Tooltip>
-            <Tooltip content="Tooltip content">
+            <Tooltip content="Tooltip content" interactive>
               <Utilization value={ 0.5 }/>
-            </Tooltip>
-          </Sample>
-          <Sample label="variant: navigation">
-            <Tooltip content="Tooltip content" variant="navigation">
-              <span>Default</span>
             </Tooltip>
           </Sample>
           <Sample label="variant: popover">

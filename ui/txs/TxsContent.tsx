@@ -1,14 +1,16 @@
 import { Box } from '@chakra-ui/react';
 import React from 'react';
 
+import type { TxsSocketType } from './socket/types';
 import type { AddressFromToFilter } from 'types/api/address';
 import type { Transaction, TransactionsSortingField, TransactionsSortingValue } from 'types/api/transaction';
+import type { PaginationParams } from 'ui/shared/pagination/types';
 
 import useIsMobile from 'lib/hooks/useIsMobile';
+import { apos } from 'toolkit/utils/htmlEntities';
 import AddressCsvExportLink from 'ui/address/AddressCsvExportLink';
 import { ACTION_BAR_HEIGHT_DESKTOP } from 'ui/shared/ActionBar';
 import DataListDisplay from 'ui/shared/DataListDisplay';
-import type { QueryWithPagesResult } from 'ui/shared/pagination/useQueryWithPages';
 import getNextSortValue from 'ui/shared/sort/getNextSortValue';
 
 import useDescribeTxs from './noves/useDescribeTxs';
@@ -23,12 +25,9 @@ const SORT_SEQUENCE: Record<TransactionsSortingField, Array<TransactionsSortingV
 };
 
 type Props = {
-  // eslint-disable-next-line max-len
-  query: QueryWithPagesResult<'txs_validated' | 'txs_pending'> | QueryWithPagesResult<'txs_watchlist'> | QueryWithPagesResult<'block_txs'> | QueryWithPagesResult<'zkevm_l2_txn_batch_txs'>;
+  pagination: PaginationParams;
   showBlockInfo?: boolean;
-  showSocketInfo?: boolean;
-  socketInfoAlert?: string;
-  socketInfoNum?: number;
+  socketType?: TxsSocketType;
   currentAddress?: string;
   filter?: React.ReactNode;
   filterValue?: AddressFromToFilter;
@@ -37,18 +36,17 @@ type Props = {
   items?: Array<Transaction>;
   isPlaceholderData: boolean;
   isError: boolean;
-  setSorting: (value: TransactionsSortingValue) => void;
+  setSorting?: (value: TransactionsSortingValue) => void;
   sort: TransactionsSortingValue;
+  stickyHeader?: boolean;
 };
 
 const TxsContent = ({
-  query,
+  pagination,
   filter,
   filterValue,
   showBlockInfo = true,
-  showSocketInfo = true,
-  socketInfoAlert,
-  socketInfoNum,
+  socketType,
   currentAddress,
   enableTimeIncrement,
   top,
@@ -57,24 +55,23 @@ const TxsContent = ({
   isError,
   setSorting,
   sort,
+  stickyHeader = true,
 }: Props) => {
   const isMobile = useIsMobile();
 
   const onSortToggle = React.useCallback((field: TransactionsSortingField) => {
     const value = getNextSortValue<TransactionsSortingField, TransactionsSortingValue>(SORT_SEQUENCE, field)(sort);
-    setSorting(value);
+    setSorting?.(value);
   }, [ sort, setSorting ]);
 
-  const itemsWithTranslation = useDescribeTxs(items, currentAddress, query.isPlaceholderData);
+  const itemsWithTranslation = useDescribeTxs(items, currentAddress, isPlaceholderData);
 
   const content = itemsWithTranslation ? (
     <>
       <Box hideFrom="lg">
         <TxsList
           showBlockInfo={ showBlockInfo }
-          showSocketInfo={ showSocketInfo }
-          socketInfoAlert={ socketInfoAlert }
-          socketInfoNum={ socketInfoNum }
+          socketType={ socketType }
           isLoading={ isPlaceholderData }
           enableTimeIncrement={ enableTimeIncrement }
           currentAddress={ currentAddress }
@@ -85,15 +82,14 @@ const TxsContent = ({
         <TxsTable
           txs={ itemsWithTranslation }
           sort={ sort }
-          onSortToggle={ onSortToggle }
+          onSortToggle={ setSorting ? onSortToggle : undefined }
           showBlockInfo={ showBlockInfo }
-          showSocketInfo={ showSocketInfo }
-          socketInfoAlert={ socketInfoAlert }
-          socketInfoNum={ socketInfoNum }
-          top={ top || (query.pagination.isVisible ? ACTION_BAR_HEIGHT_DESKTOP : 0) }
+          socketType={ socketType }
+          top={ top || (pagination.isVisible ? ACTION_BAR_HEIGHT_DESKTOP : 0) }
           currentAddress={ currentAddress }
           enableTimeIncrement={ enableTimeIncrement }
           isLoading={ isPlaceholderData }
+          stickyHeader={ stickyHeader }
         />
       </Box>
     </>
@@ -104,14 +100,14 @@ const TxsContent = ({
       mt={ -6 }
       sorting={ sort }
       setSorting={ setSorting }
-      paginationProps={ query.pagination }
-      showPagination={ query.pagination.isVisible }
+      paginationProps={ pagination }
+      showPagination={ pagination.isVisible }
       filterComponent={ filter }
       linkSlot={ currentAddress ? (
         <AddressCsvExportLink
           address={ currentAddress }
           params={{ type: 'transactions', filterType: 'address', filterValue }}
-          isLoading={ query.pagination.isLoading }
+          isLoading={ pagination.isLoading }
         />
       ) : null
       }
@@ -124,6 +120,10 @@ const TxsContent = ({
       itemsNum={ itemsWithTranslation?.length }
       emptyText="There are no transactions."
       actionBar={ actionBar }
+      filterProps={{
+        hasActiveFilters: Boolean(filterValue),
+        emptyFilteredText: `Couldn${ apos }t find any transaction that matches your query.`,
+      }}
     >
       { content }
     </DataListDisplay>

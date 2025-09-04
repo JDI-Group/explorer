@@ -26,7 +26,7 @@ const NovesActionSnippet: FC<Props> = ({ item, isLoaded }) => {
     const token = {
       name: name || '',
       symbol: (symbol?.toLowerCase() === name?.toLowerCase() ? undefined : symbol) || '',
-      address: action.nft?.address || action.token?.address || '',
+      address_hash: action.nft?.address || action.token?.address || '',
       icon_url: '',
       type: action.nft ? 'ERC-721' as const : 'ERC-20' as const,
     };
@@ -34,7 +34,7 @@ const NovesActionSnippet: FC<Props> = ({ item, isLoaded }) => {
     return token;
   }, [ item.action ]);
 
-  const validTokenAddress = token.address ? HEX_REGEXP.test(token.address) : false;
+  const validTokenAddress = token.address_hash ? HEX_REGEXP.test(token.address_hash) : false;
 
   const tooltipContent = (
     <NovesTokenTooltipContent
@@ -75,7 +75,7 @@ const NovesActionSnippet: FC<Props> = ({ item, isLoaded }) => {
             name="lightning"
             height="5"
             width="5"
-            color={{ _light: 'gray.500', _dark: 'gray.400' }}
+            color="icon.primary"
           />
           <Text fontWeight="700" >
             { item.action.label }

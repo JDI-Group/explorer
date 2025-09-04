@@ -42,10 +42,6 @@ const AdaptiveTabs = (props: Props) => {
     }
   }, [ defaultValue ]);
 
-  if (tabs.length === 1) {
-    return <div>{ tabs[0].component }</div>;
-  }
-
   return (
     <TabsRoot
       position="relative"
@@ -71,6 +67,7 @@ const AdaptiveTabs = (props: Props) => {
         stickyEnabled={ stickyEnabled }
         activeTab={ activeTab }
         isLoading={ isLoading }
+        variant={ variant }
       />
       { tabs.map((tab) => {
         const value = getTabValue(tab);

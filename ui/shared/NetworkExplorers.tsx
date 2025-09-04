@@ -21,12 +21,21 @@ const NetworkExplorers = ({ className, type, pathParam }: Props) => {
     return config.UI.explorers.items
       .filter((explorer) => typeof explorer.paths[type] === 'string')
       .map((explorer) => {
-        const url = new URL(stripTrailingSlash(explorer.paths[type] || '') + '/' + pathParam, explorer.baseUrl);
+        const path = explorer.paths[type] || '';
+        let pathWithParam;
+        if (path.includes(':id_lowercase')) {
+          pathWithParam = path.replace(':id_lowercase', pathParam.toLowerCase());
+        } else if (path.includes(':id')) {
+          pathWithParam = path.replace(':id', pathParam);
+        } else {
+          pathWithParam = stripTrailingSlash(path) + '/' + pathParam.toLowerCase();
+        }
+        const url = new URL(pathWithParam, explorer.baseUrl);
         return (
           <Link external h="34px" key={ explorer.baseUrl } href={ url.toString() } alignItems="center" display="inline-flex" minW="120px">
             { explorer.logo ?
               <Image boxSize={ 5 } mr={ 2 } src={ explorer.logo } alt={ `${ explorer.title } icon` }/> :
-              <IconSvg name="explorer" boxSize={ 5 } color={{ _light: 'gray.400', _dark: 'gray.500' }} mr={ 2 }/>
+              <IconSvg name="explorer" boxSize={ 5 } color="icon.primary" mr={ 2 }/>
             }
             { explorer.title }
           </Link>

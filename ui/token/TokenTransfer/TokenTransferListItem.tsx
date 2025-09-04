@@ -12,7 +12,7 @@ import AddressFromTo from 'ui/shared/address/AddressFromTo';
 import NftEntity from 'ui/shared/entities/nft/NftEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import ListItemMobile from 'ui/shared/ListItemMobile/ListItemMobile';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 import TruncatedValue from 'ui/shared/TruncatedValue';
 
 type Props = TokenTransfer & { tokenId?: string; isLoading?: boolean; instance?: TokenInstance };
@@ -46,7 +46,7 @@ const TokenTransferListItem = ({
           truncation="constant_long"
           fontWeight="700"
         />
-        <TimeAgoWithTooltip
+        <TimeWithTooltip
           timestamp={ timestamp }
           enableIncrement
           isLoading={ isLoading }
@@ -61,7 +61,7 @@ const TokenTransferListItem = ({
         from={ from }
         to={ to }
         isLoading={ isLoading }
-        tokenHash={ token?.address }
+        tokenHash={ token?.address_hash }
         tokenSymbol={ token?.symbol ?? undefined }
         w="100%"
         fontWeight="500"
@@ -95,7 +95,7 @@ const TokenTransferListItem = ({
       ) }
       { total && 'token_id' in total && token && (NFT_TOKEN_TYPE_IDS.includes(token.type)) && total.token_id !== null && (
         <NftEntity
-          hash={ token.address }
+          hash={ token.address_hash }
           id={ total.token_id }
           instance={ instance || total.token_instance }
           noLink={ Boolean(tokenId && tokenId === total.token_id) }

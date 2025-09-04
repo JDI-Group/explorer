@@ -9,7 +9,7 @@ import { TableCell, TableRow } from 'toolkit/chakra/table';
 import CopyToClipboard from 'ui/shared/CopyToClipboard';
 import BlockEntityL2 from 'ui/shared/entities/block/BlockEntityL2';
 import HashStringShorten from 'ui/shared/HashStringShorten';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 
 const faultProofSystemFeature = config.features.faultProofSystem;
 
@@ -31,9 +31,9 @@ const OptimisticL2DisputeGamesTableItem = ({ item, isLoading }: Props) => {
       <TableCell verticalAlign="middle">
         <Flex overflow="hidden" w="100%" alignItems="center">
           <Skeleton loading={ isLoading }>
-            <HashStringShorten hash={ item.contract_address } type="long"/>
+            <HashStringShorten hash={ item.contract_address_hash } type="long"/>
           </Skeleton>
-          <CopyToClipboard text={ item.contract_address } ml={ 2 } isLoading={ isLoading }/>
+          <CopyToClipboard text={ item.contract_address_hash } ml={ 2 } isLoading={ isLoading }/>
         </Flex>
       </TableCell>
       <TableCell verticalAlign="middle">
@@ -44,7 +44,7 @@ const OptimisticL2DisputeGamesTableItem = ({ item, isLoading }: Props) => {
         />
       </TableCell>
       <TableCell verticalAlign="middle">
-        <TimeAgoWithTooltip
+        <TimeWithTooltip
           timestamp={ item.created_at }
           isLoading={ isLoading }
           display="inline-block"
@@ -54,7 +54,7 @@ const OptimisticL2DisputeGamesTableItem = ({ item, isLoading }: Props) => {
         <Skeleton loading={ isLoading } display="inline-block">{ item.status }</Skeleton>
       </TableCell>
       <TableCell>
-        <TimeAgoWithTooltip
+        <TimeWithTooltip
           timestamp={ item.resolved_at }
           fallbackText="N/A"
           isLoading={ isLoading }

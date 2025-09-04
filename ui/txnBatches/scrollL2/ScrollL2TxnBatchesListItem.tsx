@@ -13,7 +13,7 @@ import BlockEntityL1 from 'ui/shared/entities/block/BlockEntityL1';
 import TxEntityL1 from 'ui/shared/entities/tx/TxEntityL1';
 import ListItemMobileGrid from 'ui/shared/ListItemMobile/ListItemMobileGrid';
 import ScrollL2TxnBatchStatus from 'ui/shared/statusTag/ScrollL2TxnBatchStatus';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 
 const rollupFeature = config.features.rollup;
 
@@ -64,7 +64,7 @@ const ScrollL2TxnBatchesListItem = ({ item, isLoading }: Props) => {
 
       <ListItemMobileGrid.Label isLoading={ isLoading }>Age</ListItemMobileGrid.Label>
       <ListItemMobileGrid.Value>
-        <TimeAgoWithTooltip
+        <TimeWithTooltip
           timestamp={ item.commitment_transaction.timestamp }
           fallbackText="Undefined"
           isLoading={ isLoading }
@@ -100,21 +100,25 @@ const ScrollL2TxnBatchesListItem = ({ item, isLoading }: Props) => {
           fontWeight={ 600 }
           minW="40px"
         >
-          { (item.end_block - item.start_block + 1).toLocaleString() }
+          { (item.end_block_number - item.start_block_number + 1).toLocaleString() }
         </Link>
       </ListItemMobileGrid.Value>
 
-      <ListItemMobileGrid.Label isLoading={ isLoading }>Txn count</ListItemMobileGrid.Label>
-      <ListItemMobileGrid.Value>
-        <Link
-          href={ route({ pathname: '/batches/[number]', query: { number: item.number.toString(), tab: 'txs' } }) }
-          loading={ isLoading }
-          fontWeight={ 600 }
-          minW="40px"
-        >
-          { item.transaction_count.toLocaleString() }
-        </Link>
-      </ListItemMobileGrid.Value>
+      { typeof item.transactions_count === 'number' ? (
+        <>
+          <ListItemMobileGrid.Label isLoading={ isLoading }>Txn count</ListItemMobileGrid.Label>
+          <ListItemMobileGrid.Value>
+            <Link
+              href={ route({ pathname: '/batches/[number]', query: { number: item.number.toString(), tab: 'txs' } }) }
+              loading={ isLoading }
+              fontWeight={ 600 }
+              minW="40px"
+            >
+              { item.transactions_count.toLocaleString() }
+            </Link>
+          </ListItemMobileGrid.Value>
+        </>
+      ) : null }
 
     </ListItemMobileGrid.Container>
   );

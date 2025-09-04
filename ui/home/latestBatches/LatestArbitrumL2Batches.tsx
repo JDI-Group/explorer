@@ -21,10 +21,10 @@ import LatestBatchItem from './LatestBatchItem';
 
 const LatestArbitrumL2Batches = () => {
   const isMobile = useIsMobile();
-  const batchesMaxCount = isMobile ? 2 : 5;
+  const batchesMaxCount = isMobile ? 2 : 6;
   const queryClient = useQueryClient();
 
-  const { data, isPlaceholderData, isError } = useApiQuery('homepage_arbitrum_l2_batches', {
+  const { data, isPlaceholderData, isError } = useApiQuery('general:homepage_arbitrum_l2_batches', {
     queryOptions: {
       placeholderData: { items: Array(batchesMaxCount).fill(ARBITRUM_L2_TXN_BATCHES_ITEM) },
     },
@@ -37,7 +37,7 @@ const LatestArbitrumL2Batches = () => {
   });
 
   const handleNewBatchMessage: SocketMessage.NewArbitrumL2Batch['handler'] = React.useCallback((payload) => {
-    queryClient.setQueryData(getResourceKey('homepage_arbitrum_l2_batches'), (prevData: { items: Array<ArbitrumL2TxnBatchesItem> } | undefined) => {
+    queryClient.setQueryData(getResourceKey('general:homepage_arbitrum_l2_batches'), (prevData: { items: Array<ArbitrumL2TxnBatchesItem> } | undefined) => {
       const newItems = prevData?.items ? [ ...prevData.items ] : [];
 
       if (newItems.some((batch => batch.number === payload.batch.number))) {

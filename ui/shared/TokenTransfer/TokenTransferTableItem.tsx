@@ -2,26 +2,28 @@ import { Flex, Box } from '@chakra-ui/react';
 import React from 'react';
 
 import type { TokenTransfer } from 'types/api/tokenTransfer';
+import type { ChainConfig } from 'types/multichain';
 
 import getCurrencyValue from 'lib/getCurrencyValue';
 import { getTokenTypeName } from 'lib/token/tokenTypes';
 import { Badge } from 'toolkit/chakra/badge';
 import { Skeleton } from 'toolkit/chakra/skeleton';
 import { TableCell, TableRow } from 'toolkit/chakra/table';
+import ChainIcon from 'ui/optimismSuperchain/components/ChainIcon';
 import AddressFromTo from 'ui/shared/address/AddressFromTo';
 import NftEntity from 'ui/shared/entities/nft/NftEntity';
 import TokenEntity from 'ui/shared/entities/token/TokenEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 import { getTokenTransferTypeText } from 'ui/shared/TokenTransfer/helpers';
 import TxAdditionalInfo from 'ui/txs/TxAdditionalInfo';
-
-import TimeAgoWithTooltip from '../TimeAgoWithTooltip';
 
 type Props = TokenTransfer & {
   baseAddress?: string;
   showTxInfo?: boolean;
   enableTimeIncrement?: boolean;
   isLoading?: boolean;
+  chainData?: ChainConfig;
 };
 
 const TokenTransferTableItem = ({
@@ -36,6 +38,7 @@ const TokenTransferTableItem = ({
   timestamp,
   enableTimeIncrement,
   isLoading,
+  chainData,
 }: Props) => {
   const { usd, valueStr } = total && 'value' in total && total.value !== null ? getCurrencyValue({
     value: total.value,
@@ -49,9 +52,14 @@ const TokenTransferTableItem = ({
     <TableRow alignItems="top">
       { showTxInfo && txHash && (
         <TableCell>
-          <Box my="3px">
+          <Box my="3px" textAlign="center">
             <TxAdditionalInfo hash={ txHash } isLoading={ isLoading }/>
           </Box>
+        </TableCell>
+      ) }
+      { chainData && (
+        <TableCell>
+          <ChainIcon data={ chainData } isLoading={ isLoading } my={ 1 }/>
         </TableCell>
       ) }
       <TableCell>
@@ -74,7 +82,7 @@ const TokenTransferTableItem = ({
       <TableCell>
         { total && 'token_id' in total && total.token_id !== null && token && (
           <NftEntity
-            hash={ token.address }
+            hash={ token.address_hash }
             id={ total.token_id }
             instance={ total.token_instance }
             isLoading={ isLoading }
@@ -91,7 +99,7 @@ const TokenTransferTableItem = ({
             mt="7px"
             truncation="constant_long"
           />
-          <TimeAgoWithTooltip
+          <TimeWithTooltip
             timestamp={ timestamp }
             enableIncrement={ enableTimeIncrement }
             isLoading={ isLoading }

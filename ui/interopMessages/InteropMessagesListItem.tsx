@@ -8,7 +8,7 @@ import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import AddressEntityInterop from 'ui/shared/entities/address/AddressEntityInterop';
 import ListItemMobile from 'ui/shared/ListItemMobile/ListItemMobile';
 import InteropMessageStatus from 'ui/shared/statusTag/InteropMessageStatus';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 
 import InteropMessageAdditionalInfo from './InteropMessageAdditionalInfo';
 import InteropMessageDestinationTx from './InteropMessageDestinationTx';
@@ -29,7 +29,7 @@ const InteropMessagesListItem = ({ item, isLoading }: Props) => {
       <Flex alignItems="flex-start" flexDirection="column" gap={ 2 } w="100%">
         <HStack w="100%">
           <Text fontWeight={ 500 } flexGrow={ 1 }>#{ item.nonce }</Text>
-          <TimeAgoWithTooltip timestamp={ item.timestamp } isLoading={ isLoading } color="text.secondary"/>
+          <TimeWithTooltip timestamp={ item.timestamp } isLoading={ isLoading } color="text.secondary"/>
         </HStack>
         <Grid templateColumns="120px 1fr" rowGap={ 2 }>
           <Text as="span" color="text.secondary">Source tx</Text>
@@ -41,12 +41,12 @@ const InteropMessagesListItem = ({ item, isLoading }: Props) => {
           { item.init_chain !== undefined ? (
             <AddressEntityInterop
               chain={ item.init_chain }
-              address={{ hash: item.sender }}
+              address={{ hash: item.sender_address_hash }}
               isLoading={ isLoading }
               truncation="constant"
             />
           ) : (
-            <AddressEntity address={{ hash: item.sender }} isLoading={ isLoading } truncation="constant"/>
+            <AddressEntity address={{ hash: item.sender_address_hash }} isLoading={ isLoading } truncation="constant"/>
           ) }
           <AddressFromToIcon
             isLoading={ isLoading }
@@ -55,12 +55,12 @@ const InteropMessagesListItem = ({ item, isLoading }: Props) => {
           { item.relay_chain !== undefined ? (
             <AddressEntityInterop
               chain={ item.relay_chain }
-              address={{ hash: item.target }}
+              address={{ hash: item.target_address_hash }}
               isLoading={ isLoading }
               truncation="constant"
             />
           ) : (
-            <AddressEntity address={{ hash: item.target }} isLoading={ isLoading } truncation="constant"/>
+            <AddressEntity address={{ hash: item.target_address_hash }} isLoading={ isLoading } truncation="constant"/>
           ) }
         </Flex>
       </Flex>

@@ -2,25 +2,28 @@ import { Flex } from '@chakra-ui/react';
 import React from 'react';
 
 import type { TokenTransfer } from 'types/api/tokenTransfer';
+import type { ChainConfig } from 'types/multichain';
 
 import getCurrencyValue from 'lib/getCurrencyValue';
 import { NFT_TOKEN_TYPE_IDS } from 'lib/token/tokenTypes';
 import { Badge } from 'toolkit/chakra/badge';
 import { Skeleton } from 'toolkit/chakra/skeleton';
 import { TableCell, TableRow } from 'toolkit/chakra/table';
+import ChainIcon from 'ui/optimismSuperchain/components/ChainIcon';
 import AddressFromTo from 'ui/shared/address/AddressFromTo';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import NftEntity from 'ui/shared/entities/nft/NftEntity';
 import TokenEntity from 'ui/shared/entities/token/TokenEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 
 type Props = {
   item: TokenTransfer;
   isLoading?: boolean;
+  chainData?: ChainConfig;
 };
 
-const TokenTransferTableItem = ({ item, isLoading }: Props) => {
+const TokenTransferTableItem = ({ item, isLoading, chainData }: Props) => {
   const { valueStr } = item.total && 'value' in item.total && item.total.value !== null ? getCurrencyValue({
     value: item.total.value,
     exchangeRate: item.token?.exchange_rate,
@@ -31,6 +34,11 @@ const TokenTransferTableItem = ({ item, isLoading }: Props) => {
 
   return (
     <TableRow>
+      { chainData && (
+        <TableCell>
+          <ChainIcon data={ chainData } isLoading={ isLoading }/>
+        </TableCell>
+      ) }
       <TableCell>
         <TxEntity
           hash={ item.transaction_hash }
@@ -39,7 +47,7 @@ const TokenTransferTableItem = ({ item, isLoading }: Props) => {
           noIcon
           truncation="constant_long"
         />
-        <TimeAgoWithTooltip
+        <TimeWithTooltip
           timestamp={ item.timestamp }
           enableIncrement
           isLoading={ isLoading }
@@ -66,13 +74,13 @@ const TokenTransferTableItem = ({ item, isLoading }: Props) => {
       <TableCell>
         { item.total && 'token_id' in item.total && item.token && (NFT_TOKEN_TYPE_IDS.includes(item.token.type)) && item.total.token_id !== null ? (
           <NftEntity
-            hash={ item.token.address }
+            hash={ item.token.address_hash }
             id={ item.total.token_id }
             instance={ item.total.token_instance }
             isLoading={ isLoading }
             maxW="140px"
           />
-        ) : '-' }
+        ) : <Skeleton loading={ isLoading }>-</Skeleton> }
       </TableCell>
       <TableCell isNumeric verticalAlign="top">
         { (item.token && valueStr) ? (
@@ -90,7 +98,7 @@ const TokenTransferTableItem = ({ item, isLoading }: Props) => {
               maxW="100px"
             />
           </Flex>
-        ) : '-'
+        ) : <Skeleton loading={ isLoading }>-</Skeleton>
         }
       </TableCell>
     </TableRow>

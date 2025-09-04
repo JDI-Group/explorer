@@ -29,7 +29,7 @@ const ApiKeysPage: React.FC = () => {
   const [ apiKeyModalData, setApiKeyModalData ] = useState<ApiKey>();
   const [ deleteModalData, setDeleteModalData ] = useState<ApiKey>();
 
-  const { data, isPlaceholderData, isError } = useApiQuery('api_keys', {
+  const { data, isPlaceholderData, isError } = useApiQuery('general:api_keys', {
     queryOptions: {
       placeholderData: Array(3).fill(API_KEY),
     },
@@ -58,7 +58,7 @@ const ApiKeysPage: React.FC = () => {
   const description = (
     <AccountPageDescription>
       Create API keys to use for your RPC and EthRPC API requests. For more information, see { space }
-      <Link href="https://docs.blockscout.com/for-users/api#api-keys" target="_blank">“How to use a Blockscout API key”</Link>.
+      <Link href="https://docs.blockscout.com/using-blockscout/my-account/api-keys#api-keys" target="_blank">“How to use a Blockscout API key”</Link>.
     </AccountPageDescription>
   );
 

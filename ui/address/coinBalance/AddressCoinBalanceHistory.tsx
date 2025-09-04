@@ -6,11 +6,14 @@ import type { AddressCoinBalanceHistoryResponse } from 'types/api/address';
 import type { PaginationParams } from 'ui/shared/pagination/types';
 
 import type { ResourceError } from 'lib/api/resources';
+import { useMultichainContext } from 'lib/contexts/multichain';
+import { getChainDataForList } from 'lib/multichain/getChainDataForList';
 import { currencyUnits } from 'lib/units';
 import { TableBody, TableColumnHeader, TableHeaderSticky, TableRoot, TableRow } from 'toolkit/chakra/table';
 import ActionBar, { ACTION_BAR_HEIGHT_DESKTOP } from 'ui/shared/ActionBar';
 import DataListDisplay from 'ui/shared/DataListDisplay';
 import Pagination from 'ui/shared/pagination/Pagination';
+import TimeFormatToggle from 'ui/shared/time/TimeFormatToggle';
 
 import AddressCoinBalanceListItem from './AddressCoinBalanceListItem';
 import AddressCoinBalanceTableItem from './AddressCoinBalanceTableItem';
@@ -22,6 +25,8 @@ interface Props {
 }
 
 const AddressCoinBalanceHistory = ({ query }: Props) => {
+  const multichainContext = useMultichainContext();
+  const chainData = getChainDataForList(multichainContext);
 
   const content = query.data?.items ? (
     <>
@@ -29,9 +34,13 @@ const AddressCoinBalanceHistory = ({ query }: Props) => {
         <TableRoot>
           <TableHeaderSticky top={ query.pagination.isVisible ? ACTION_BAR_HEIGHT_DESKTOP : 0 }>
             <TableRow>
+              { chainData && <TableColumnHeader width="38px"/> }
               <TableColumnHeader width="20%">Block</TableColumnHeader>
               <TableColumnHeader width="20%">Txn</TableColumnHeader>
-              <TableColumnHeader width="20%">Age</TableColumnHeader>
+              <TableColumnHeader width="20%">
+                Timestamp
+                <TimeFormatToggle/>
+              </TableColumnHeader>
               <TableColumnHeader width="20%" isNumeric pr={ 1 }>Balance { currencyUnits.ether }</TableColumnHeader>
               <TableColumnHeader width="20%" isNumeric>Delta</TableColumnHeader>
             </TableRow>
@@ -43,6 +52,7 @@ const AddressCoinBalanceHistory = ({ query }: Props) => {
                 { ...item }
                 page={ query.pagination.page }
                 isLoading={ query.isPlaceholderData }
+                chainData={ chainData }
               />
             )) }
           </TableBody>
@@ -55,6 +65,7 @@ const AddressCoinBalanceHistory = ({ query }: Props) => {
             { ...item }
             page={ query.pagination.page }
             isLoading={ query.isPlaceholderData }
+            chainData={ chainData }
           />
         )) }
       </Box>

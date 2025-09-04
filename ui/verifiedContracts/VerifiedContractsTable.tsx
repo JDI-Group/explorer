@@ -3,10 +3,13 @@ import React from 'react';
 import type { VerifiedContract } from 'types/api/contracts';
 import type { VerifiedContractsSortingField, VerifiedContractsSortingValue } from 'types/api/verifiedContracts';
 
+import { useMultichainContext } from 'lib/contexts/multichain';
+import { getChainDataForList } from 'lib/multichain/getChainDataForList';
 import { currencyUnits } from 'lib/units';
 import { TableBody, TableColumnHeader, TableColumnHeaderSortable, TableHeaderSticky, TableRoot, TableRow } from 'toolkit/chakra/table';
 import { ACTION_BAR_HEIGHT_DESKTOP } from 'ui/shared/ActionBar';
 import getNextSortValue from 'ui/shared/sort/getNextSortValue';
+import TimeFormatToggle from 'ui/shared/time/TimeFormatToggle';
 import { SORT_SEQUENCE } from 'ui/verifiedContracts/utils';
 
 import VerifiedContractsTableItem from './VerifiedContractsTableItem';
@@ -19,15 +22,19 @@ interface Props {
 }
 
 const VerifiedContractsTable = ({ data, sort, setSorting, isLoading }: Props) => {
+  const multichainContext = useMultichainContext();
+  const chainData = getChainDataForList(multichainContext);
+
   const onSortToggle = React.useCallback((field: VerifiedContractsSortingField) => {
     const value = getNextSortValue<VerifiedContractsSortingField, VerifiedContractsSortingValue>(SORT_SEQUENCE, field)(sort);
     setSorting({ value: [ value ] });
   }, [ sort, setSorting ]);
 
   return (
-    <TableRoot>
+    <TableRoot minW="1100px">
       <TableHeaderSticky top={ ACTION_BAR_HEIGHT_DESKTOP }>
         <TableRow>
+          { chainData && <TableColumnHeader width="38px"/> }
           <TableColumnHeader width="50%">Contract</TableColumnHeader>
           <TableColumnHeaderSortable
             width="130px"
@@ -51,7 +58,10 @@ const VerifiedContractsTable = ({ data, sort, setSorting, isLoading }: Props) =>
           </TableColumnHeaderSortable>
           <TableColumnHeader width="50%">Language / Compiler version</TableColumnHeader>
           <TableColumnHeader width="80px">Settings</TableColumnHeader>
-          <TableColumnHeader width="150px">Verified</TableColumnHeader>
+          <TableColumnHeader width="200px">
+            Verified
+            <TimeFormatToggle/>
+          </TableColumnHeader>
           <TableColumnHeader width="130px">License</TableColumnHeader>
         </TableRow>
       </TableHeaderSticky>
@@ -60,7 +70,9 @@ const VerifiedContractsTable = ({ data, sort, setSorting, isLoading }: Props) =>
           <VerifiedContractsTableItem
             key={ item.address.hash + (isLoading ? index : '') }
             data={ item }
-            isLoading={ isLoading }/>
+            isLoading={ isLoading }
+            chainData={ chainData }
+          />
         )) }
       </TableBody>
     </TableRoot>

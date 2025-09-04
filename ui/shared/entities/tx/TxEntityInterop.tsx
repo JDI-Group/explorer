@@ -17,7 +17,7 @@ import * as TxEntity from './TxEntity';
 type Props = {
   chain: ChainInfo | null;
   hash?: string | null;
-} & Omit<TxEntity.EntityProps, 'hash'>;
+} & Omit<TxEntity.EntityProps, 'hash' | 'chain'>;
 
 const IconStub = ({ isLoading }: { isLoading?: boolean }) => {
   return (
@@ -36,7 +36,7 @@ const IconStub = ({ isLoading }: { isLoading?: boolean }) => {
         name="networks/icon-placeholder"
         width="16px"
         height="16px"
-        color="text.secondary"
+        color="icon.primary"
         display="block"
       />
     </Skeleton>

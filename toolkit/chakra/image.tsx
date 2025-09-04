@@ -27,10 +27,16 @@ export const Image = React.forwardRef<HTMLImageElement, ImageProps>(
     }, [ onLoad ]);
 
     if (!src && fallback) {
+      if (React.isValidElement(fallback)) {
+        return React.cloneElement(fallback, rest);
+      }
       return fallback;
     }
 
     if (error) {
+      if (React.isValidElement(fallback)) {
+        return React.cloneElement(fallback, rest);
+      }
       return fallback;
     }
 
@@ -43,7 +49,7 @@ export const Image = React.forwardRef<HTMLImageElement, ImageProps>(
           onError={ handleLoadError }
           onLoad={ handleLoadSuccess }
           { ...rest }
-          display={ loading ? 'none' : rest.display || 'inline-block' }
+          display={ loading ? 'none' : rest.display || 'block' }
         />
       </>
     );

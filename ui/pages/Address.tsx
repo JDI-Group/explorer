@@ -8,22 +8,26 @@ import type { EntityTag } from 'ui/shared/EntityTags/types';
 import config from 'configs/app';
 import getCheckedSummedAddress from 'lib/address/getCheckedSummedAddress';
 import useAddressMetadataInfoQuery from 'lib/address/useAddressMetadataInfoQuery';
+import useAddressMetadataInitUpdate from 'lib/address/useAddressMetadataInitUpdate';
 import useApiQuery from 'lib/api/useApiQuery';
-import { useAppContext } from 'lib/contexts/app';
 import useAddressProfileApiQuery from 'lib/hooks/useAddressProfileApiQuery';
 import useIsSafeAddress from 'lib/hooks/useIsSafeAddress';
 import getNetworkValidationActionText from 'lib/networks/getNetworkValidationActionText';
 import getQueryParamString from 'lib/router/getQueryParamString';
+import useEtherscanRedirects from 'lib/router/useEtherscanRedirects';
 import useSocketChannel from 'lib/socket/useSocketChannel';
 import useSocketMessage from 'lib/socket/useSocketMessage';
 import useFetchXStarScore from 'lib/xStarScore/useFetchXStarScore';
 import { ADDRESS_TABS_COUNTERS } from 'stubs/address';
 import { USER_OPS_ACCOUNT } from 'stubs/userOps';
 import RoutedTabs from 'toolkit/components/RoutedTabs/RoutedTabs';
+import Address3rdPartyWidgets from 'ui/address/Address3rdPartyWidgets';
+import useAddress3rdPartyWidgets from 'ui/address/address3rdPartyWidgets/useAddress3rdPartyWidgets';
 import AddressAccountHistory from 'ui/address/AddressAccountHistory';
 import AddressBlocksValidated from 'ui/address/AddressBlocksValidated';
 import AddressCoinBalance from 'ui/address/AddressCoinBalance';
 import AddressContract from 'ui/address/AddressContract';
+import AddressDeposits from 'ui/address/AddressDeposits';
 import AddressDetails from 'ui/address/AddressDetails';
 import AddressEpochRewards from 'ui/address/AddressEpochRewards';
 import AddressInternalTxs from 'ui/address/AddressInternalTxs';
@@ -34,13 +38,13 @@ import AddressTokenTransfers from 'ui/address/AddressTokenTransfers';
 import AddressTxs from 'ui/address/AddressTxs';
 import AddressUserOps from 'ui/address/AddressUserOps';
 import AddressWithdrawals from 'ui/address/AddressWithdrawals';
-import useContractTabs from 'ui/address/contract/useContractTabs';
 import { CONTRACT_TAB_IDS } from 'ui/address/contract/utils';
 import AddressFavoriteButton from 'ui/address/details/AddressFavoriteButton';
 import AddressMetadataAlert from 'ui/address/details/AddressMetadataAlert';
 import AddressQrCode from 'ui/address/details/AddressQrCode';
 import AddressEnsDomains from 'ui/address/ensDomains/AddressEnsDomains';
 import SolidityscanReport from 'ui/address/SolidityscanReport';
+import useAddressCountersQuery from 'ui/address/utils/useAddressCountersQuery';
 import useAddressQuery from 'ui/address/utils/useAddressQuery';
 import useCheckAddressFormat from 'ui/address/utils/useCheckAddressFormat';
 import useCheckDomainNameParam from 'ui/address/utils/useCheckDomainNameParam';
@@ -65,16 +69,18 @@ const xScoreFeature = config.features.xStarScore;
 
 const AddressPageContent = () => {
   const router = useRouter();
-  const appProps = useAppContext();
 
   const hash = getQueryParamString(router.query.hash);
 
   const checkDomainName = useCheckDomainNameParam(hash);
   const checkAddressFormat = useCheckAddressFormat(hash);
+
+  useEtherscanRedirects();
+
   const areQueriesEnabled = !checkDomainName && !checkAddressFormat;
   const addressQuery = useAddressQuery({ hash, isEnabled: areQueriesEnabled });
 
-  const addressTabsCountersQuery = useApiQuery('address_tabs_counters', {
+  const addressTabsCountersQuery = useApiQuery('general:address_tabs_counters', {
     pathParams: { hash },
     queryOptions: {
       enabled: areQueriesEnabled && Boolean(hash),
@@ -82,7 +88,13 @@ const AddressPageContent = () => {
     },
   });
 
-  const userOpsAccountQuery = useApiQuery('user_ops_account', {
+  const countersQuery = useAddressCountersQuery({
+    hash,
+    isLoading: addressQuery.isPlaceholderData,
+    isDegradedData: addressQuery.isDegradedData,
+  });
+
+  const userOpsAccountQuery = useApiQuery('general:user_ops_account', {
     pathParams: { hash },
     queryOptions: {
       enabled: areQueriesEnabled && Boolean(hash) && config.features.userOps.isEnabled,
@@ -90,7 +102,7 @@ const AddressPageContent = () => {
     },
   });
 
-  const mudTablesCountQuery = useApiQuery('address_mud_tables_count', {
+  const mudTablesCountQuery = useApiQuery('general:mud_tables_count', {
     pathParams: { hash },
     queryOptions: {
       enabled: config.features.mudFramework.isEnabled && areQueriesEnabled && Boolean(hash),
@@ -102,7 +114,7 @@ const AddressPageContent = () => {
   const addressMetadataQuery = useAddressMetadataInfoQuery(addressesForMetadataQuery, areQueriesEnabled);
   const userPropfileApiQuery = useAddressProfileApiQuery(hash, addressProfileAPIFeature.isEnabled && areQueriesEnabled);
 
-  const addressEnsDomainsQuery = useApiQuery('addresses_lookup', {
+  const addressEnsDomainsQuery = useApiQuery('bens:addresses_lookup', {
     pathParams: { chainId: config.chain.id },
     queryParams: {
       address: hash,
@@ -119,10 +131,14 @@ const AddressPageContent = () => {
     addressEnsDomainsQuery.data?.items.find((domain) => domain.name === addressQuery.data?.ens_domain_name) :
     undefined;
 
+  const addressType = addressQuery.data?.is_contract && addressQuery.data?.proxy_type !== 'eip7702' ? 'contract' : 'eoa';
+  const address3rdPartyWidgets = useAddress3rdPartyWidgets(addressType, addressQuery.isPlaceholderData, areQueriesEnabled);
+
   const isLoading = addressQuery.isPlaceholderData;
   const isTabsLoading =
     isLoading ||
     addressTabsCountersQuery.isPlaceholderData ||
+    (address3rdPartyWidgets.isEnabled && address3rdPartyWidgets.configQuery.isPlaceholderData) ||
     (config.features.userOps.isEnabled && userOpsAccountQuery.isPlaceholderData) ||
     (config.features.mudFramework.isEnabled && mudTablesCountQuery.isPlaceholderData);
 
@@ -140,22 +156,22 @@ const AddressPageContent = () => {
     handler: handleFetchedBytecodeMessage,
   });
 
+  useAddressMetadataInitUpdate({
+    address: hash,
+    counters: countersQuery.data,
+    isEnabled: !countersQuery.isPlaceholderData && !countersQuery.isDegradedData,
+  });
+
   const isSafeAddress = useIsSafeAddress(!addressQuery.isPlaceholderData && addressQuery.data?.is_contract ? hash : undefined);
 
   const xStarQuery = useFetchXStarScore({ hash });
-
-  const contractTabs = useContractTabs(
-    addressQuery.data,
-    config.features.mudFramework.isEnabled ? (mudTablesCountQuery.isPlaceholderData || addressQuery.isPlaceholderData) : addressQuery.isPlaceholderData,
-    Boolean(config.features.mudFramework.isEnabled && mudTablesCountQuery.data && mudTablesCountQuery.data > 0),
-  );
 
   const tabs: Array<TabItemRegular> = React.useMemo(() => {
     return [
       {
         id: 'index',
         title: 'Details',
-        component: <AddressDetails addressQuery={ addressQuery }/>,
+        component: <AddressDetails addressQuery={ addressQuery } countersQuery={ countersQuery } isLoading={ isTabsLoading }/>,
       },
       addressQuery.data?.is_contract ? {
         id: 'contract',
@@ -175,9 +191,9 @@ const AddressPageContent = () => {
         },
         component: (
           <AddressContract
-            tabs={ contractTabs.tabs }
-            shouldRender={ !isTabsLoading }
-            isLoading={ contractTabs.isLoading }
+            addressData={ addressQuery.data }
+            isLoading={ isTabsLoading }
+            hasMudTab={ Boolean(config.features.mudFramework.isEnabled && mudTablesCountQuery.data && mudTablesCountQuery.data > 0) }
           />
         ),
         subTabs: CONTRACT_TAB_IDS,
@@ -207,6 +223,14 @@ const AddressPageContent = () => {
           title: 'User operations',
           count: userOpsAccountQuery.data?.total_ops,
           component: <AddressUserOps shouldRender={ !isTabsLoading } isQueryEnabled={ areQueriesEnabled }/>,
+        } :
+        undefined,
+      config.features.beaconChain.isEnabled && addressTabsCountersQuery.data?.beacon_deposits_count ?
+        {
+          id: 'deposits',
+          title: 'Deposits',
+          count: addressTabsCountersQuery.data?.beacon_deposits_count,
+          component: <AddressDeposits shouldRender={ !isTabsLoading } isQueryEnabled={ areQueriesEnabled }/>,
         } :
         undefined,
       config.features.beaconChain.isEnabled && addressTabsCountersQuery.data?.withdrawals_count ?
@@ -264,16 +288,32 @@ const AddressPageContent = () => {
           component: <AddressLogs shouldRender={ !isTabsLoading } isQueryEnabled={ areQueriesEnabled }/>,
         } :
         undefined,
+      (address3rdPartyWidgets.isEnabled && address3rdPartyWidgets.items.length > 0) ? {
+        id: 'widgets',
+        title: 'Widgets',
+        count: address3rdPartyWidgets.items.length,
+        component: (
+          <Address3rdPartyWidgets
+            addressType={ addressType }
+            isLoading={ addressQuery.isPlaceholderData }
+            shouldRender={ !isTabsLoading }
+            isQueryEnabled={ areQueriesEnabled }
+            showAll
+          />
+        ),
+      } : undefined,
     ].filter(Boolean);
   }, [
     hash,
     addressQuery,
-    contractTabs,
+    countersQuery,
     addressTabsCountersQuery.data,
     userOpsAccountQuery.data,
     isTabsLoading,
     areQueriesEnabled,
     mudTablesCountQuery.data,
+    address3rdPartyWidgets,
+    addressType,
   ]);
 
   const usernameApiTag = userPropfileApiQuery.data?.user_profile?.username;
@@ -352,27 +392,15 @@ const AddressPageContent = () => {
     />
   );
 
-  const backLink = React.useMemo(() => {
-    if (appProps.referrer && appProps.referrer.includes('/accounts')) {
-      return {
-        label: 'Back to top accounts list',
-        url: appProps.referrer,
-      };
-    }
-
-    if (appProps.referrer && appProps.referrer.includes('/mud-worlds')) {
-      return {
-        label: 'Back to MUD worlds list',
-        url: appProps.referrer,
-      };
-    }
-
-    return;
-  }, [ appProps.referrer ]);
-
   // API always returns hash in check-summed format except for addresses that are not in the database
   // In this case it returns 404 with empty payload, so we calculate check-summed hash on the client
-  const checkSummedHash = React.useMemo(() => addressQuery.data?.hash ?? getCheckedSummedAddress(hash), [ hash, addressQuery.data?.hash ]);
+  const checkSummedHash = React.useMemo(() => {
+    if (isLoading) {
+      return getCheckedSummedAddress(hash);
+    }
+
+    return addressQuery.data?.hash ?? getCheckedSummedAddress(hash);
+  }, [ hash, addressQuery.data?.hash, isLoading ]);
 
   const titleSecondRow = (
     <Flex alignItems="center" w="100%" columnGap={ 2 } rowGap={ 2 } flexWrap={{ base: 'wrap', lg: 'nowrap' }}>
@@ -411,7 +439,7 @@ const AddressPageContent = () => {
         <SolidityscanReport hash={ hash }/> }
       { !isLoading && addressEnsDomainsQuery.data && config.features.nameService.isEnabled &&
         <AddressEnsDomains query={ addressEnsDomainsQuery } addressHash={ hash } mainDomainName={ addressQuery.data?.ens_domain_name }/> }
-      <NetworkExplorers type="address" pathParam={ hash.toLowerCase() }/>
+      <NetworkExplorers type="address" pathParam={ hash }/>
     </Flex>
   );
 
@@ -420,7 +448,6 @@ const AddressPageContent = () => {
       <TextAd mb={ 6 }/>
       <PageTitle
         title={ `${ addressQuery.data?.is_contract && addressQuery.data?.proxy_type !== 'eip7702' ? 'Contract' : 'Address' } details` }
-        backLink={ backLink }
         contentAfter={ titleContentAfter }
         secondRow={ titleSecondRow }
         isLoading={ isLoading }

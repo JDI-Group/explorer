@@ -12,7 +12,7 @@ export const LinkExternalIcon = ({ color }: { color?: ChakraLinkProps['color'] }
   <Icon
     boxSize={ 3 }
     verticalAlign="middle"
-    color={ color ?? 'icon.externalLink' }
+    color={ color ?? 'icon.secondary' }
     _groupHover={{
       color: 'inherit',
     }}
@@ -30,7 +30,7 @@ interface LinkPropsChakra extends ChakraLinkProps {
   disabled?: boolean;
 }
 
-interface LinkPropsNext extends Pick<NextLinkProps, 'shallow' | 'prefetch' | 'scroll'> {}
+interface LinkPropsNext extends Partial<Pick<NextLinkProps, 'shallow' | 'prefetch' | 'scroll'>> {}
 
 export interface LinkProps extends LinkPropsChakra, LinkPropsNext {}
 

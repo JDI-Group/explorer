@@ -3,17 +3,20 @@ import BigNumber from 'bignumber.js';
 import React from 'react';
 
 import type { AddressCoinBalanceHistoryItem } from 'types/api/address';
+import type { ChainConfig } from 'types/multichain';
 
 import { Skeleton } from 'toolkit/chakra/skeleton';
 import { TableCell, TableRow } from 'toolkit/chakra/table';
 import { WEI, ZERO } from 'toolkit/utils/consts';
+import ChainIcon from 'ui/optimismSuperchain/components/ChainIcon';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 
 type Props = AddressCoinBalanceHistoryItem & {
   page: number;
   isLoading: boolean;
+  chainData?: ChainConfig;
 };
 
 const AddressCoinBalanceTableItem = (props: Props) => {
@@ -22,6 +25,11 @@ const AddressCoinBalanceTableItem = (props: Props) => {
 
   return (
     <TableRow>
+      { props.chainData && (
+        <TableCell>
+          <ChainIcon data={ props.chainData } isLoading={ props.isLoading }/>
+        </TableCell>
+      ) }
       <TableCell>
         <BlockEntity
           isLoading={ props.isLoading }
@@ -42,7 +50,7 @@ const AddressCoinBalanceTableItem = (props: Props) => {
         ) }
       </TableCell>
       <TableCell>
-        <TimeAgoWithTooltip
+        <TimeWithTooltip
           timestamp={ props.block_timestamp }
           enableIncrement={ props.page === 1 }
           isLoading={ props.isLoading }

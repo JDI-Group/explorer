@@ -3,7 +3,6 @@ import React from 'react';
 
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'toolkit/chakra/tabs';
 import AdaptiveTabs from 'toolkit/components/AdaptiveTabs/AdaptiveTabs';
-import RoutedTabsSkeleton from 'toolkit/components/RoutedTabs/RoutedTabsSkeleton';
 
 import { Section, Container, SectionHeader, SamplesStack, Sample, SectionSubHeader } from './parts';
 
@@ -47,10 +46,12 @@ const TabsShowcase = () => {
                 <TabsTrigger value="tab1">First tab</TabsTrigger>
                 <TabsTrigger value="tab2">Second tab</TabsTrigger>
                 <TabsTrigger value="tab3">Third tab</TabsTrigger>
+                <TabsTrigger value="tab4">Fourth tab</TabsTrigger>
               </TabsList>
               <TabsContent value="tab1">First tab content</TabsContent>
               <TabsContent value="tab2">Second tab content</TabsContent>
               <TabsContent value="tab3">Third tab content</TabsContent>
+              <TabsContent value="tab4">Fourth tab content</TabsContent>
             </TabsRoot>
           </Sample>
         </SamplesStack>
@@ -72,13 +73,6 @@ const TabsShowcase = () => {
               rightSlot={ <Box display={{ base: 'none', lg: 'flex' }} justifyContent="space-between"><span>Right element</span><span>🙈</span></Box> }
               rightSlotProps={{ pl: { base: 0, lg: 4 }, color: 'text.secondary', widthAllocation: 'available' }}
             />
-          </Sample>
-        </SamplesStack>
-
-        <SectionSubHeader>Tabs skeleton</SectionSubHeader>
-        <SamplesStack>
-          <Sample>
-            <RoutedTabsSkeleton tabs={ tabs }/>
           </Sample>
         </SamplesStack>
       </Section>

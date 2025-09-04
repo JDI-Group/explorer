@@ -2,6 +2,7 @@ import { Flex } from '@chakra-ui/react';
 import React from 'react';
 
 import type { TokenTransfer } from 'types/api/tokenTransfer';
+import type { ChainConfig } from 'types/multichain';
 
 import getCurrencyValue from 'lib/getCurrencyValue';
 import { getTokenTypeName } from 'lib/token/tokenTypes';
@@ -12,16 +13,16 @@ import NftEntity from 'ui/shared/entities/nft/NftEntity';
 import TokenEntity from 'ui/shared/entities/token/TokenEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import ListItemMobile from 'ui/shared/ListItemMobile/ListItemMobile';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 import { getTokenTransferTypeText } from 'ui/shared/TokenTransfer/helpers';
 import TxAdditionalInfo from 'ui/txs/TxAdditionalInfo';
-
-import TimeAgoWithTooltip from '../TimeAgoWithTooltip';
 
 type Props = TokenTransfer & {
   baseAddress?: string;
   showTxInfo?: boolean;
   enableTimeIncrement?: boolean;
   isLoading?: boolean;
+  chainData?: ChainConfig;
 };
 
 const TokenTransferListItem = ({
@@ -36,6 +37,7 @@ const TokenTransferListItem = ({
   timestamp,
   enableTimeIncrement,
   isLoading,
+  chainData,
 }: Props) => {
   const { usd, valueStr } = total && 'value' in total && total.value !== null ? getCurrencyValue({
     value: total.value,
@@ -68,7 +70,7 @@ const TokenTransferListItem = ({
         ) }
       </Flex>
       { total && 'token_id' in total && total.token_id !== null && token && (
-        <NftEntity hash={ token.address } id={ total.token_id } instance={ total.token_instance } isLoading={ isLoading }/>
+        <NftEntity hash={ token.address_hash } id={ total.token_id } instance={ total.token_instance } isLoading={ isLoading }/>
       ) }
       { showTxInfo && txHash && (
         <Flex justifyContent="space-between" alignItems="center" lineHeight="24px" width="100%">
@@ -77,8 +79,9 @@ const TokenTransferListItem = ({
             hash={ txHash }
             truncation="constant_long"
             fontWeight="700"
+            chain={ chainData }
           />
-          <TimeAgoWithTooltip
+          <TimeWithTooltip
             timestamp={ timestamp }
             enableIncrement={ enableTimeIncrement }
             isLoading={ isLoading }
@@ -98,7 +101,7 @@ const TokenTransferListItem = ({
       { valueStr && (
         <Flex columnGap={ 2 } w="100%">
           <Skeleton loading={ isLoading } fontWeight={ 500 } flexShrink={ 0 }>Value</Skeleton>
-          <Skeleton loading={ isLoading } color="text.secondary">
+          <Skeleton loading={ isLoading } color="text.secondary" wordBreak="break-all" overflow="hidden">
             <span>{ valueStr }</span>
             { usd && <span> (${ usd })</span> }
           </Skeleton>

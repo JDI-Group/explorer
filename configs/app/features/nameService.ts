@@ -1,14 +1,15 @@
 import type { Feature } from './types';
 
 import { getEnvValue } from '../utils';
+import apis from '../apis';
 
 const apiHost = getEnvValue('NEXT_PUBLIC_NAME_SERVICE_API_HOST') || '';
 const basePath = apiHost.slice(apiHost.indexOf('/', 3)) || '';
 
 const title = 'Name service integration';
 
-const config: Feature<{ api: { endpoint: string; basePath: string } }> = (() => {
-  if (apiHost) {
+const config: Feature<{}> = (() => {
+  if (apis.bens) {
     return Object.freeze({
       title,
       isEnabled: true,

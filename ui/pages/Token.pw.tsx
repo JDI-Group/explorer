@@ -11,7 +11,7 @@ import * as pwConfig from 'playwright/utils/config';
 
 import Token from './Token';
 
-const hash = tokenInfo.address;
+const hash = tokenInfo.address_hash;
 const chainId = config.chain.id;
 
 const hooksConfig = {
@@ -26,10 +26,10 @@ const hooksConfig = {
 test.describe.configure({ mode: 'serial' });
 
 test.beforeEach(async({ mockApiResponse, mockTextAd }) => {
-  await mockApiResponse('token', tokenInfo, { pathParams: { hash } });
-  await mockApiResponse('address', contract, { pathParams: { hash } });
-  await mockApiResponse('token_counters', tokenCounters, { pathParams: { hash } });
-  await mockApiResponse('token_transfers', { items: [], next_page_params: null }, { pathParams: { hash } });
+  await mockApiResponse('general:token', tokenInfo, { pathParams: { hash } });
+  await mockApiResponse('general:address', contract, { pathParams: { hash } });
+  await mockApiResponse('general:token_counters', tokenCounters, { pathParams: { hash } });
+  await mockApiResponse('general:token_transfers', { items: [], next_page_params: null }, { pathParams: { hash } });
   await mockTextAd();
 });
 
@@ -47,7 +47,7 @@ test('base view', async({ render, page, createSocket }) => {
 
 test('with verified info', async({ render, page, createSocket, mockApiResponse, mockAssetResponse }) => {
   test.slow();
-  await mockApiResponse('token_verified_info', verifiedAddressesMocks.TOKEN_INFO_APPLICATION.APPROVED, { pathParams: { chainId, hash } });
+  await mockApiResponse('contractInfo:token_verified_info', verifiedAddressesMocks.TOKEN_INFO_APPLICATION.APPROVED, { pathParams: { chainId, hash } });
   await mockAssetResponse(tokenInfo.icon_url as string, './playwright/mocks/image_s.jpg');
 
   const component = await render(<Token/>, { hooksConfig }, { withSocket: true });
@@ -66,7 +66,7 @@ test('with verified info', async({ render, page, createSocket, mockApiResponse, 
 });
 
 test('bridged token', async({ render, page, createSocket, mockApiResponse, mockAssetResponse, mockEnvs }) => {
-  const hash = bridgedTokenA.address;
+  const hash = bridgedTokenA.address_hash;
   const hooksConfig = {
     router: {
       query: { hash, tab: 'token_transfers' },
@@ -74,11 +74,11 @@ test('bridged token', async({ render, page, createSocket, mockApiResponse, mockA
   };
 
   await mockEnvs(ENVS_MAP.bridgedTokens);
-  await mockApiResponse('token', bridgedTokenA, { pathParams: { hash } });
-  await mockApiResponse('address', contract, { pathParams: { hash } });
-  await mockApiResponse('token_counters', tokenCounters, { pathParams: { hash } });
-  await mockApiResponse('token_transfers', { items: [], next_page_params: null }, { pathParams: { hash } });
-  await mockApiResponse('token_verified_info', verifiedAddressesMocks.TOKEN_INFO_APPLICATION.APPROVED, { pathParams: { chainId, hash } });
+  await mockApiResponse('general:token', bridgedTokenA, { pathParams: { hash } });
+  await mockApiResponse('general:address', contract, { pathParams: { hash } });
+  await mockApiResponse('general:token_counters', tokenCounters, { pathParams: { hash } });
+  await mockApiResponse('general:token_transfers', { items: [], next_page_params: null }, { pathParams: { hash } });
+  await mockApiResponse('contractInfo:token_verified_info', verifiedAddressesMocks.TOKEN_INFO_APPLICATION.APPROVED, { pathParams: { chainId, hash } });
   await mockAssetResponse(tokenInfo.icon_url as string, './playwright/mocks/image_s.jpg');
 
   const component = await render(<Token/>, { hooksConfig }, { withSocket: true });
@@ -111,7 +111,7 @@ test.describe('mobile', () => {
 
   test('with verified info', async({ render, page, createSocket, mockApiResponse, mockAssetResponse }) => {
     test.slow();
-    await mockApiResponse('token_verified_info', verifiedAddressesMocks.TOKEN_INFO_APPLICATION.APPROVED, { pathParams: { chainId, hash } });
+    await mockApiResponse('contractInfo:token_verified_info', verifiedAddressesMocks.TOKEN_INFO_APPLICATION.APPROVED, { pathParams: { chainId, hash } });
     await mockAssetResponse(tokenInfo.icon_url as string, './playwright/mocks/image_s.jpg');
 
     const component = await render(<Token/>, { hooksConfig }, { withSocket: true });

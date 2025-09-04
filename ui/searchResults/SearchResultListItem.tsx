@@ -23,6 +23,7 @@ import * as AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import * as BlobEntity from 'ui/shared/entities/blob/BlobEntity';
 import * as BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import * as EnsEntity from 'ui/shared/entities/ens/EnsEntity';
+import * as OperationEntity from 'ui/shared/entities/operation/OperationEntity';
 import * as TokenEntity from 'ui/shared/entities/token/TokenEntity';
 import * as TxEntity from 'ui/shared/entities/tx/TxEntity';
 import * as UserOpEntity from 'ui/shared/entities/userOp/UserOpEntity';
@@ -31,6 +32,7 @@ import IconSvg from 'ui/shared/IconSvg';
 import ListItemMobile from 'ui/shared/ListItemMobile/ListItemMobile';
 import type { SearchResultAppItem } from 'ui/shared/search/utils';
 import { getItemCategory, searchItemTitles } from 'ui/shared/search/utils';
+import TacOperationStatus from 'ui/shared/statusTag/TacOperationStatus';
 
 import SearchResultEntityTag from './SearchResultEntityTag';
 
@@ -63,7 +65,7 @@ const SearchResultListItem = ({ data, searchTerm, isLoading, addressFormat }: Pr
           <Flex alignItems="center" overflow="hidden">
             <TokenEntity.Icon token={{ ...data, type: data.token_type }} isLoading={ isLoading }/>
             <Link
-              href={ route({ pathname: '/token/[hash]', query: { hash: data.address } }) }
+              href={ route({ pathname: '/token/[hash]', query: { hash: data.address_hash } }) }
               fontWeight={ 700 }
               wordBreak="break-all"
               loading={ isLoading }
@@ -88,10 +90,10 @@ const SearchResultListItem = ({ data, searchTerm, isLoading, addressFormat }: Pr
       case 'contract':
       case 'address': {
         const shouldHighlightHash = ADDRESS_REGEXP.test(searchTerm);
-        const hash = addressFormat === 'bech32' ? toBech32Address(data.address) : data.address;
+        const hash = addressFormat === 'bech32' ? toBech32Address(data.address_hash) : data.address_hash;
 
         const address = {
-          hash: data.address,
+          hash: data.address_hash,
           filecoin: {
             robust: data.filecoin_robust_address,
           },
@@ -124,9 +126,9 @@ const SearchResultListItem = ({ data, searchTerm, isLoading, addressFormat }: Pr
       case 'label': {
         return (
           <Flex alignItems="center">
-            <IconSvg name="publictags_slim" boxSize={ 6 } mr={ 2 } color="gray.500"/>
+            <IconSvg name="publictags_slim" boxSize={ 6 } mr={ 2 } color="icon.primary"/>
             <Link
-              href={ route({ pathname: '/address/[hash]', query: { hash: data.address } }) }
+              href={ route({ pathname: '/address/[hash]', query: { hash: data.address_hash } }) }
               fontWeight={ 700 }
               wordBreak="break-all"
               loading={ isLoading }
@@ -214,6 +216,28 @@ const SearchResultListItem = ({ data, searchTerm, isLoading, addressFormat }: Pr
         );
       }
 
+      case 'tac_operation': {
+        return (
+          <OperationEntity.Container>
+            <OperationEntity.Icon type={ data.tac_operation.type }/>
+            <OperationEntity.Link
+              isLoading={ isLoading }
+              id={ data.tac_operation.operation_id }
+              onClick={ handleLinkClick }
+            >
+              <OperationEntity.Content
+                asProp="mark"
+                id={ data.tac_operation.operation_id }
+                textStyle="sm"
+                fontWeight={ 700 }
+                mr={ 2 }
+              />
+            </OperationEntity.Link>
+            <TacOperationStatus status={ data.tac_operation.type }/>
+          </OperationEntity.Container>
+        );
+      }
+
       case 'blob': {
         return (
           <BlobEntity.Container>
@@ -259,7 +283,7 @@ const SearchResultListItem = ({ data, searchTerm, isLoading, addressFormat }: Pr
           <EnsEntity.Container>
             <EnsEntity.Icon protocol={ data.ens_info.protocol }/>
             <Link
-              href={ route({ pathname: '/address/[hash]', query: { hash: data.address } }) }
+              href={ route({ pathname: '/address/[hash]', query: { hash: data.address_hash } }) }
               fontWeight={ 700 }
               wordBreak="break-all"
               loading={ isLoading }
@@ -284,13 +308,13 @@ const SearchResultListItem = ({ data, searchTerm, isLoading, addressFormat }: Pr
       case 'token': {
         const templateCols = `1fr
         ${ (data.token_type === 'ERC-20' && data.exchange_rate) || (data.token_type !== 'ERC-20' && data.total_supply) ? ' auto' : '' }`;
-        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address) : data.address);
+        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address_hash) : data.address_hash);
 
         return (
           <Grid templateColumns={ templateCols } alignItems="center" gap={ 2 }>
             <Skeleton loading={ isLoading } overflow="hidden" display="flex" alignItems="center">
               <Text whiteSpace="nowrap" overflow="hidden">
-                <HashStringShortenDynamic hash={ hash } isTooltipDisabled/>
+                <HashStringShortenDynamic hash={ hash } noTooltip/>
               </Text>
               { data.is_smart_contract_verified && <IconSvg name="status/success" boxSize="14px" color="green.500" ml={ 1 } flexShrink={ 0 }/> }
             </Skeleton>
@@ -325,6 +349,11 @@ const SearchResultListItem = ({ data, searchTerm, isLoading, addressFormat }: Pr
           <Text color="text.secondary">{ dayjs(data.timestamp).format('llll') }</Text>
         );
       }
+      case 'tac_operation': {
+        return (
+          <Text color="text.secondary">{ dayjs(data.tac_operation.timestamp).format('llll') }</Text>
+        );
+      }
       case 'user_operation': {
 
         return (
@@ -332,7 +361,7 @@ const SearchResultListItem = ({ data, searchTerm, isLoading, addressFormat }: Pr
         );
       }
       case 'label': {
-        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address) : data.address);
+        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address_hash) : data.address_hash);
 
         return (
           <Flex alignItems="center">
@@ -385,7 +414,7 @@ const SearchResultListItem = ({ data, searchTerm, isLoading, addressFormat }: Pr
       }
       case 'ens_domain': {
         const expiresText = data.ens_info?.expiry_date ? ` expires ${ dayjs(data.ens_info.expiry_date).fromNow() }` : '';
-        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address) : data.address);
+        const hash = data.filecoin_robust_address || (addressFormat === 'bech32' ? toBech32Address(data.address_hash) : data.address_hash);
 
         return (
           <Flex alignItems="center" gap={ 3 }>

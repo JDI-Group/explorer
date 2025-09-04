@@ -10,7 +10,7 @@ import { STATS_COUNTER } from './stats';
 export const CONTRACT_CODE_UNVERIFIED = {
   creation_bytecode: '0x60806040526e',
   deployed_bytecode: '0x608060405233',
-  is_self_destructed: false,
+  creation_status: 'success',
 } as SmartContract;
 
 export const CONTRACT_CODE_VERIFIED = {
@@ -71,7 +71,7 @@ export const VERIFIED_CONTRACT_INFO: VerifiedContract = {
   language: 'solidity',
   market_cap: null,
   optimization_enabled: false,
-  transaction_count: 565058,
+  transactions_count: 565058,
   verified_at: '2023-04-10T13:16:33.884921Z',
   license_type: 'mit',
 };
@@ -113,7 +113,7 @@ export const MUD_SYSTEMS: SmartContractMudSystemsResponse = {
   items: [
     {
       name: 'sy.AccessManagement',
-      address: ADDRESS_HASH,
+      address_hash: ADDRESS_HASH,
     },
   ],
 };

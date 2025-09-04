@@ -1,6 +1,6 @@
 import type { TabItem, TabItemMenu } from './types';
 
-import { middot } from 'toolkit/utils/htmlEntities';
+import { middot } from '../../utils/htmlEntities';
 
 export const menuButton: TabItemMenu = {
   id: 'menu',
@@ -8,7 +8,11 @@ export const menuButton: TabItemMenu = {
   component: null,
 };
 
-export const getTabValue = (tab: TabItem): string => {
+export const getTabValue = (tab: TabItem | undefined): string => {
+  if (!tab) {
+    return 'undefined';
+  }
+
   if (Array.isArray(tab.id)) {
     return tab.id[0];
   }

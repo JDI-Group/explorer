@@ -21,7 +21,7 @@ import NativeTokenIcon from 'ui/shared/NativeTokenIcon';
 import PageTitle from 'ui/shared/Page/PageTitle';
 
 const GasTracker = () => {
-  const { data, isPlaceholderData, isError, error, dataUpdatedAt } = useApiQuery('stats', {
+  const { data, isPlaceholderData, isError, error, dataUpdatedAt } = useApiQuery('general:stats', {
     queryOptions: {
       placeholderData: HOMEPAGE_STATS,
       refetchOnMount: false,
@@ -91,7 +91,7 @@ const GasTracker = () => {
       <Heading level="2" mt={ 8 } mb={ 4 }>{ `Track ${ config.chain.name } gas fees` }</Heading>
       { snippets }
       { config.features.stats.isEnabled && (
-        <Box mt={ 12 }>
+        <Box mt={ 12 } _empty={{ display: 'none' }}>
           <GasTrackerChart/>
         </Box>
       ) }

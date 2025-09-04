@@ -16,7 +16,7 @@ import * as TokenEntity from '../token/TokenEntity';
 type LinkProps = EntityBase.LinkBaseProps & Pick<EntityProps, 'pool'>;
 
 const Link = chakra((props: LinkProps) => {
-  const defaultHref = route({ pathname: '/pools/[hash]', query: { hash: props.pool.contract_address } });
+  const defaultHref = route({ pathname: '/pools/[hash]', query: { hash: props.pool.pool_id } });
 
   return (
     <EntityBase.Link
@@ -47,7 +47,7 @@ const Icon = (props: IconProps) => {
           token={{
             icon_url: props.pool.base_token_icon_url,
             symbol: props.pool.base_token_symbol,
-            address: props.pool.base_token_address,
+            address_hash: props.pool.base_token_address,
             name: '',
             type: 'ERC-20',
           }}
@@ -67,7 +67,7 @@ const Icon = (props: IconProps) => {
           token={{
             icon_url: props.pool.quote_token_icon_url,
             symbol: props.pool.quote_token_symbol,
-            address: props.pool.quote_token_address,
+            address_hash: props.pool.quote_token_address,
             name: '',
             type: 'ERC-20',
           }}

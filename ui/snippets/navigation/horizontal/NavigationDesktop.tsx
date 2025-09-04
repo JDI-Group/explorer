@@ -9,6 +9,8 @@ import NetworkLogo from 'ui/snippets/networkMenu/NetworkLogo';
 import UserProfileDesktop from 'ui/snippets/user/profile/UserProfileDesktop';
 import UserWalletDesktop from 'ui/snippets/user/wallet/UserWalletDesktop';
 
+import NavigationPromoBanner from '../promoBanner/NavigationPromoBanner';
+import RollupStageBadge from '../RollupStageBadge';
 import TestnetBadge from '../TestnetBadge';
 import NavLink from './NavLink';
 import NavLinkGroup from './NavLinkGroup';
@@ -28,6 +30,7 @@ const NavigationDesktop = () => {
       >
         <NetworkLogo isCollapsed={ false } w={{ lg: '100%' }} maxW="120px"/>
         <TestnetBadge ml={ 3 }/>
+        <RollupStageBadge ml={ 3 }/>
         <chakra.nav ml="auto" mr={ config.features.account.isEnabled || config.features.blockchainInteraction.isEnabled ? 8 : 0 }>
           <Flex as="ul" columnGap={ 3 }>
             { mainNavItems.map((item) => {
@@ -40,6 +43,7 @@ const NavigationDesktop = () => {
           </Flex>
         </chakra.nav>
         <Flex gap={ 2 }>
+          <NavigationPromoBanner/>
           { config.features.rewards.isEnabled && <RewardsButton size="sm"/> }
           {
             (config.features.account.isEnabled && <UserProfileDesktop buttonSize="sm"/>) ||

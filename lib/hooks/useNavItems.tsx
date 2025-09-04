@@ -36,14 +36,20 @@ export default function useNavItems(): ReturnType {
       text: 'Blocks',
       nextRoute: { pathname: '/blocks' as const },
       icon: 'block',
-      isActive: pathname === '/blocks' || pathname === '/block/[height_or_hash]',
+      isActive: pathname === '/blocks' || pathname === '/block/[height_or_hash]' || pathname === '/chain/[chain-slug]/block/[height_or_hash]',
     };
     const txs: NavItem | null = {
       text: 'Transactions',
       nextRoute: { pathname: '/txs' as const },
       icon: 'transactions',
-      isActive: pathname === '/txs' || pathname === '/tx/[hash]',
+      isActive: pathname === '/txs' || pathname === '/tx/[hash]' || pathname === '/chain/[chain-slug]/tx/[hash]',
     };
+    const operations: NavItem | null = config.features.tac.isEnabled ? {
+      text: 'Operations',
+      nextRoute: { pathname: '/operations' as const },
+      icon: 'operation',
+      isActive: pathname === '/operations' || pathname === '/operation/[id]',
+    } : null;
     const internalTxs: NavItem | null = {
       text: 'Internal transactions',
       nextRoute: { pathname: '/internal-txs' as const },
@@ -54,7 +60,7 @@ export default function useNavItems(): ReturnType {
       text: 'User operations',
       nextRoute: { pathname: '/ops' as const },
       icon: 'user_op',
-      isActive: pathname === '/ops' || pathname === '/op/[hash]',
+      isActive: pathname === '/ops' || pathname === '/op/[hash]' || pathname === '/chain/[chain-slug]/op/[hash]',
     } : null;
 
     const verifiedContracts: NavItem | null =
@@ -71,7 +77,7 @@ export default function useNavItems(): ReturnType {
       isActive: pathname === '/name-domains' || pathname === '/name-domains/[name]',
     } : null;
     const validators = config.features.validators.isEnabled ? {
-      text: 'Top validators',
+      text: 'Validators',
       nextRoute: { pathname: '/validators' as const },
       icon: 'validator',
       isActive: pathname === '/validators' || pathname === '/validators/[id]',
@@ -111,6 +117,12 @@ export default function useNavItems(): ReturnType {
       nextRoute: { pathname: '/mud-worlds' as const },
       icon: 'MUD_menu',
       isActive: pathname === '/mud-worlds',
+    } : null;
+    const epochs = config.features.celo.isEnabled ? {
+      text: 'Epochs',
+      nextRoute: { pathname: '/epochs' as const },
+      icon: 'hourglass',
+      isActive: pathname.startsWith('/epochs'),
     } : null;
 
     const rollupFeature = config.features.rollup;
@@ -186,13 +198,21 @@ export default function useNavItems(): ReturnType {
     } else {
       blockchainNavItems = [
         txs,
+        operations,
         internalTxs,
         userOps,
         blocks,
+        epochs,
         topAccounts,
         validators,
         verifiedContracts,
         ensLookup,
+        config.features.beaconChain.isEnabled && {
+          text: 'Deposits',
+          nextRoute: { pathname: '/deposits' as const },
+          icon: 'arrows/south-east',
+          isActive: pathname === '/deposits',
+        },
         config.features.beaconChain.isEnabled && {
           text: 'Withdrawals',
           nextRoute: { pathname: '/withdrawals' as const },
@@ -223,33 +243,19 @@ export default function useNavItems(): ReturnType {
       },
     ].filter(Boolean);
 
-    const apiNavItems: Array<NavItem> = [
-      config.features.restApiDocs.isEnabled ? {
-        text: 'REST API',
-        nextRoute: { pathname: '/api-docs' as const },
-        icon: 'restAPI',
-        isActive: pathname === '/api-docs',
-      } : null,
-      config.features.graphqlApiDocs.isEnabled ? {
-        text: 'GraphQL',
-        nextRoute: { pathname: '/graphiql' as const },
-        icon: 'graphQL',
-        isActive: pathname === '/graphiql',
-      } : null,
-      !config.UI.navigation.hiddenLinks?.rpc_api && {
-        text: 'RPC API',
-        icon: 'RPC',
-        url: 'https://docs.blockscout.com/for-users/api/rpc-endpoints',
-      },
-      !config.UI.navigation.hiddenLinks?.eth_rpc_api && {
-        text: 'Eth RPC API',
-        icon: 'RPC',
-        url: ' https://docs.blockscout.com/for-users/api/eth-rpc',
-      },
-    ].filter(Boolean);
+    const apiNavItem: NavItem | null = config.features.apiDocs.isEnabled ? {
+      text: 'API',
+      nextRoute: { pathname: '/api-docs' as const },
+      icon: 'restAPI',
+      isActive: pathname.startsWith('/api-docs'),
+    } : null;
 
     const otherNavItems: Array<NavItem> | Array<Array<NavItem>> = [
-      {
+      config.features.opSuperchain.isEnabled ? {
+        text: 'Verify contract',
+        // TODO @tom2drum adjust URL to Vera
+        url: 'https://vera.blockscout.com',
+      } : {
         text: 'Verify contract',
         nextRoute: { pathname: '/contract-verification' as const },
         isActive: pathname.startsWith('/contract-verification'),
@@ -303,12 +309,7 @@ export default function useNavItems(): ReturnType {
         icon: 'stats',
         isActive: pathname.startsWith('/stats'),
       } : null,
-      apiNavItems.length > 0 && {
-        text: 'API',
-        icon: 'restAPI',
-        isActive: apiNavItems.some(item => isInternalItem(item) && item.isActive),
-        subItems: apiNavItems,
-      },
+      apiNavItem,
       {
         text: 'Other',
         icon: 'gear',

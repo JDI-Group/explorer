@@ -14,6 +14,7 @@ on:
             - arbitrum_nova
             - arbitrum_sepolia
             - base
+            - celo
             - celo_alfajores
             - garnet
             - gnosis
@@ -23,19 +24,22 @@ on:
             - filecoin
             - immutable
             - main
+            - mega_eth
             - mekong
             - neon_devnet
             - optimism
-            - optimism_celestia
             - optimism_sepolia
+            - optimism_superchain
             - polygon
             - rari_testnet
             - rootstock
             - shibarium
             - scroll_sepolia
             - stability
+            - tac
+            - tac_turin
             - zkevm
-            - zilliqa_prototestnet
+            - zilliqa
             - zksync
             - zora
 

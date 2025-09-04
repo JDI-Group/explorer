@@ -27,7 +27,6 @@ const TEMPLATE_MAP: Record<Route['pathname'], string> = {
   '/stats': '%network_name% stats - %network_name% network insights',
   '/stats/[id]': '%network_name% stats - %id% chart',
   '/api-docs': '%network_name% API docs - %network_name% developer tools',
-  '/graphiql': 'GraphQL for %network_name% - %network_name% data query',
   '/search-results': '%network_name% search result for %q%',
   '/auth/profile': '%network_name% - my profile',
   '/account/merits': '%network_name% - Merits',
@@ -41,7 +40,7 @@ const TEMPLATE_MAP: Record<Route['pathname'], string> = {
   '/txn-withdrawals': '%network_name% L2 to L1 message relayer',
   '/visualize/sol2uml': '%network_name% Solidity UML diagram',
   '/csv-export': '%network_name% export data to CSV',
-  '/deposits': '%network_name% deposits (L1 > L2)',
+  '/deposits': '%network_name% deposits - track on %network_name% explorer',
   '/output-roots': '%network_name% output roots',
   '/dispute-games': '%network_name% dispute games',
   '/batches': '%network_name% txn batches',
@@ -55,6 +54,8 @@ const TEMPLATE_MAP: Record<Route['pathname'], string> = {
   '/name-domains/[name]': '%network_name% %name% domain details',
   '/validators': '%network_name% validators list',
   '/validators/[id]': '%network_name% validator %id% details',
+  '/epochs': '%network_name% epochs',
+  '/epochs/[number]': '%network_name% epoch %number% details',
   '/gas-tracker': 'Track %network_name% gas fees in %network_gwei%',
   '/mud-worlds': '%network_name% MUD worlds list',
   '/token-transfers': '%network_name% token transfers',
@@ -62,6 +63,20 @@ const TEMPLATE_MAP: Record<Route['pathname'], string> = {
   '/pools': '%network_name% DEX pools',
   '/pools/[hash]': '%network_name% pool details',
   '/interop-messages': '%network_name% interop messages',
+  '/operations': '%network_name% operations',
+  '/operation/[id]': '%network_name% operation %id%',
+
+  // multichain routes
+  '/chain/[chain-slug]/accounts/label/[slug]': '%network_name% addresses search by label',
+  '/chain/[chain-slug]/advanced-filter': '%network_name% advanced filter',
+  '/chain/[chain-slug]/block/[height_or_hash]': '%network_name% block %height_or_hash% details',
+  '/chain/[chain-slug]/block/countdown': '%network_name% block countdown index',
+  '/chain/[chain-slug]/block/countdown/[height]': '%network_name% block %height% countdown',
+  '/chain/[chain-slug]/csv-export': '%network_name% export data to CSV',
+  '/chain/[chain-slug]/op/[hash]': '%network_name% user operation %hash% details',
+  '/chain/[chain-slug]/token/[hash]': '%network_name% token details',
+  '/chain/[chain-slug]/token/[hash]/instance/[id]': '%network_name% token NFT instance',
+  '/chain/[chain-slug]/tx/[hash]': '%network_name% transaction %hash% details',
 
   // service routes, added only to make typescript happy
   '/login': '%network_name% login',
@@ -78,8 +93,8 @@ const TEMPLATE_MAP: Record<Route['pathname'], string> = {
 };
 
 const TEMPLATE_MAP_ENHANCED: Partial<Record<Route['pathname'], string>> = {
-  '/token/[hash]': '%network_name% %symbol% token details',
-  '/token/[hash]/instance/[id]': '%network_name% token instance for %symbol%',
+  '/token/[hash]': '%network_name% %symbol_or_name% token details',
+  '/token/[hash]/instance/[id]': '%network_name% token instance for %symbol_or_name%',
   '/apps/[id]': '%network_name% - %app_name%',
   '/address/[hash]': '%network_name% address details for %domain_name%',
   '/stats/[id]': '%title% chart on %network_name%',

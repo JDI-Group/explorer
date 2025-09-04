@@ -4,8 +4,10 @@ import { throttle } from 'es-toolkit';
 import React from 'react';
 import type { ChangeEvent, FormEvent, FocusEvent } from 'react';
 
+import config from 'configs/app';
 import { useScrollDirection } from 'lib/contexts/scrollDirection';
 import useIsMobile from 'lib/hooks/useIsMobile';
+import { useColorModeValue } from 'toolkit/chakra/color-mode';
 import { Input } from 'toolkit/chakra/input';
 import { InputGroup } from 'toolkit/chakra/input-group';
 import { ClearButton } from 'toolkit/components/buttons/ClearButton';
@@ -31,6 +33,11 @@ const SearchBarInput = (
   const [ isSticky, setIsSticky ] = React.useState(false);
   const scrollDirection = useScrollDirection();
   const isMobile = useIsMobile();
+
+  const borderWidthHomepage = useColorModeValue(
+    config.UI.homepage.heroBanner?.search?.border_width?.[0] ?? '0px',
+    config.UI.homepage.heroBanner?.search?.border_width?.[1] ?? '0px',
+  );
 
   const handleScroll = React.useCallback(() => {
     const TOP_BAR_HEIGHT = 36;
@@ -139,7 +146,7 @@ const SearchBarInput = (
       position={{ base: isHomepage ? 'static' : 'absolute', lg: 'relative' }}
       top={{ base: isHomepage ? 0 : 55, lg: 0 }}
       left="0"
-      zIndex={{ base: isHomepage ? 'auto' : '0', lg: isSuggestOpen ? 'popover' : 'auto' }}
+      zIndex={{ base: isHomepage ? 'auto' : '0', lg: isSuggestOpen ? 'modal' : 'auto' }}
       paddingX={{ base: isHomepage ? 0 : 3, lg: 0 }}
       paddingTop={{ base: isHomepage ? 0 : 1, lg: 0 }}
       paddingBottom={{ base: isHomepage ? 0 : 2, lg: 0 }}
@@ -160,7 +167,8 @@ const SearchBarInput = (
           value={ value }
           onChange={ handleChange }
           onFocus={ onFocus }
-          border={ isHomepage ? 'none' : '2px solid' }
+          borderWidth={ isHomepage ? borderWidthHomepage : '2px' }
+          borderStyle="solid"
           borderColor={{ _light: 'blackAlpha.100', _dark: 'whiteAlpha.200' }}
           color={{ _light: 'black', _dark: 'white' }}
           _hover={{ borderColor: 'input.border.hover' }}

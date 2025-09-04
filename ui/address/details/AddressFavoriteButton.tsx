@@ -36,7 +36,7 @@ const AddressFavoriteButton = ({ className, hash, watchListId }: Props) => {
   }, [ watchListId, deleteModalProps, addModalProps ]);
 
   const handleAddOrDeleteSuccess = React.useCallback(async() => {
-    const queryKey = getResourceKey('address', { pathParams: { hash: router.query.hash?.toString() } });
+    const queryKey = getResourceKey('general:address', { pathParams: { hash: router.query.hash?.toString() } });
     await queryClient.refetchQueries({ queryKey });
     addModalProps.onClose();
   }, [ addModalProps, queryClient, router.query.hash ]);
@@ -60,7 +60,7 @@ const AddressFavoriteButton = ({ className, hash, watchListId }: Props) => {
     <>
       <AuthGuard onAuthSuccess={ handleAddToFavorite }>
         { ({ onClick }) => (
-          <Tooltip content={ `${ watchListId ? 'Remove address from Watch list' : 'Add address to Watch list' }` }>
+          <Tooltip content={ `${ watchListId ? 'Remove address from Watch list' : 'Add address to Watch list' }` } disableOnMobile>
             <IconButton
               className={ className }
               aria-label="edit"

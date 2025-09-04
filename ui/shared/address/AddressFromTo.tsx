@@ -2,8 +2,6 @@ import type { ConditionalValue } from '@chakra-ui/react';
 import { Flex, Grid, chakra, useBreakpointValue } from '@chakra-ui/react';
 import React from 'react';
 
-import type { AddressParam } from 'types/api/addressParams';
-
 import type { EntityProps } from 'ui/shared/entities/address/AddressEntity';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import AddressEntityWithTokenFilter from 'ui/shared/entities/address/AddressEntityWithTokenFilter';
@@ -14,8 +12,8 @@ import { getTxCourseType } from './utils';
 type Mode = 'compact' | 'long';
 
 interface Props {
-  from: AddressParam;
-  to: AddressParam | null;
+  from: { hash: string };
+  to: { hash: string } | null;
   current?: string;
   mode?: Mode | ConditionalValue<Mode>;
   className?: string;
@@ -36,6 +34,8 @@ const AddressFromTo = ({ from, to, current, mode: modeProp, className, isLoading
   ) ?? 'long';
 
   const Entity = tokenHash && tokenSymbol ? AddressEntityWithTokenFilter : AddressEntity;
+  const isOutgoing = current ? current.toLowerCase() === from.hash.toLowerCase() : false;
+  const isIncoming = current ? current.toLowerCase() === to?.hash?.toLowerCase() : false;
 
   if (mode === 'compact') {
     return (
@@ -49,8 +49,8 @@ const AddressFromTo = ({ from, to, current, mode: modeProp, className, isLoading
           <Entity
             address={ from }
             isLoading={ isLoading }
-            noLink={ current === from.hash }
-            noCopy={ current === from.hash }
+            noLink={ isOutgoing }
+            noCopy={ isOutgoing }
             noIcon={ noIcon }
             tokenHash={ tokenHash }
             tokenSymbol={ tokenSymbol }
@@ -63,8 +63,8 @@ const AddressFromTo = ({ from, to, current, mode: modeProp, className, isLoading
           <Entity
             address={ to }
             isLoading={ isLoading }
-            noLink={ current === to.hash }
-            noCopy={ current === to.hash }
+            noLink={ isIncoming }
+            noCopy={ isIncoming }
             noIcon={ noIcon }
             tokenHash={ tokenHash }
             tokenSymbol={ tokenSymbol }
@@ -78,7 +78,6 @@ const AddressFromTo = ({ from, to, current, mode: modeProp, className, isLoading
     );
   }
 
-  const isOutgoing = current === from.hash;
   const iconSize = 20;
 
   return (
@@ -102,8 +101,8 @@ const AddressFromTo = ({ from, to, current, mode: modeProp, className, isLoading
         <Entity
           address={ to }
           isLoading={ isLoading }
-          noLink={ current === to.hash }
-          noCopy={ current === to.hash }
+          noLink={ isIncoming }
+          noCopy={ isIncoming }
           noIcon={ noIcon }
           tokenHash={ tokenHash }
           tokenSymbol={ tokenSymbol }

@@ -4,7 +4,7 @@ import React from 'react';
 import { WagmiProvider } from 'wagmi';
 
 import config from 'configs/app';
-import { currentChain, parentChain } from 'lib/web3/chains';
+import { currentChain, parentChain, clusterChains } from 'lib/web3/chains';
 import wagmiConfig from 'lib/web3/wagmiConfig';
 import { useColorMode } from 'toolkit/chakra/color-mode';
 import colors from 'toolkit/theme/foundations/colors';
@@ -19,10 +19,12 @@ const init = () => {
       return;
     }
 
+    const networks = [ currentChain, parentChain, ...(clusterChains ?? []) ].filter(Boolean) as [AppKitNetwork, ...Array<AppKitNetwork>];
+
     createAppKit({
       // @ts-ignore
       adapters: [ wagmiConfig.adapter ],
-      networks: [ currentChain, parentChain ].filter(Boolean) as [AppKitNetwork, ...Array<AppKitNetwork>],
+      networks,
       metadata: {
         name: `${ config.chain.name } explorer`,
         description: `${ config.chain.name } explorer`,
@@ -41,7 +43,7 @@ const init = () => {
         '--w3m-font-family': `${ BODY_TYPEFACE }, sans-serif`,
         '--w3m-accent': colors.blue[600].value,
         '--w3m-border-radius-master': '2px',
-        '--w3m-z-index': zIndex?.popover?.value,
+        '--w3m-z-index': zIndex?.modal2?.value,
       },
       featuredWalletIds: [],
       allowUnsupportedChain: true,

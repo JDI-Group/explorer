@@ -7,24 +7,25 @@ import type { WithdrawalsItem } from 'types/api/withdrawals';
 import config from 'configs/app';
 import useLazyRenderedList from 'lib/hooks/useLazyRenderedList';
 import { TableBody, TableColumnHeader, TableHeaderSticky, TableRoot, TableRow } from 'toolkit/chakra/table';
+import TimeFormatToggle from 'ui/shared/time/TimeFormatToggle';
 
 import BeaconChainWithdrawalsTableItem from './BeaconChainWithdrawalsTableItem';
 
 const feature = config.features.beaconChain;
 
- type Props = {
-   top: number;
-   isLoading?: boolean;
- } & ({
-   items: Array<WithdrawalsItem>;
-   view: 'list';
- } | {
-   items: Array<AddressWithdrawalsItem>;
-   view: 'address';
- } | {
-   items: Array<BlockWithdrawalsItem>;
-   view: 'block';
- });
+type Props = {
+  top: number;
+  isLoading?: boolean;
+} & ({
+  items: Array<WithdrawalsItem>;
+  view: 'list';
+} | {
+  items: Array<AddressWithdrawalsItem>;
+  view: 'address';
+} | {
+  items: Array<BlockWithdrawalsItem>;
+  view: 'block';
+});
 
 const BeaconChainWithdrawalsTable = ({ items, isLoading, top, view }: Props) => {
   const { cutRef, renderedItemsNum } = useLazyRenderedList(items, !isLoading);
@@ -37,12 +38,12 @@ const BeaconChainWithdrawalsTable = ({ items, isLoading, top, view }: Props) => 
     <TableRoot style={{ tableLayout: 'auto' }} minW="950px">
       <TableHeaderSticky top={ top }>
         <TableRow>
-          <TableColumnHeader minW="140px">Index</TableColumnHeader>
-          <TableColumnHeader minW="200px">Validator index</TableColumnHeader>
-          { view !== 'block' && <TableColumnHeader w="25%">Block</TableColumnHeader> }
-          { view !== 'address' && <TableColumnHeader w="25%">To</TableColumnHeader> }
-          { view !== 'block' && <TableColumnHeader w="25%">Age</TableColumnHeader> }
-          <TableColumnHeader w="25%">{ `Value ${ feature.currency.symbol }` }</TableColumnHeader>
+          <TableColumnHeader>Index</TableColumnHeader>
+          <TableColumnHeader>Validator index</TableColumnHeader>
+          { view !== 'block' && <TableColumnHeader>Block</TableColumnHeader> }
+          { view !== 'address' && <TableColumnHeader>To</TableColumnHeader> }
+          { view !== 'block' && <TableColumnHeader>Timestamp<TimeFormatToggle/></TableColumnHeader> }
+          <TableColumnHeader>{ `Value ${ feature.currency.symbol }` }</TableColumnHeader>
         </TableRow>
       </TableHeaderSticky>
       <TableBody>

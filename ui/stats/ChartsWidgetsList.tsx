@@ -38,7 +38,7 @@ const ChartsWidgetsList = ({ filterQuery, isError, isPlaceholderData, charts, in
     }
   }, [ shouldScrollToSection ]);
 
-  const homeStatsQuery = useApiQuery('stats', {
+  const homeStatsQuery = useApiQuery('general:stats', {
     queryOptions: {
       refetchOnMount: false,
     },
@@ -67,25 +67,25 @@ const ChartsWidgetsList = ({ filterQuery, isError, isPlaceholderData, charts, in
           charts?.map((section) => (
             <Box
               key={ section.id }
-              mb={ 8 }
+              mb={{ base: 6, lg: 8 }}
               _last={{
                 marginBottom: 0,
               }}
             >
-              <Skeleton loading={ isPlaceholderData } mb={ 4 } display="inline-flex" alignItems="center" columnGap={ 2 } id={ section.id }>
+              <Skeleton loading={ isPlaceholderData } mb={{ base: 3, lg: 4 }} display="inline-flex" alignItems="center" columnGap={ 2 } id={ section.id }>
                 <Heading level="2" id={ section.id }>
                   { section.title }
                 </Heading>
                 { section.id === 'gas' && homeStatsQuery.data && homeStatsQuery.data.gas_prices && (
                   <GasInfoTooltip data={ homeStatsQuery.data } dataUpdatedAt={ homeStatsQuery.dataUpdatedAt }>
-                    <IconSvg name="info" boxSize={ 5 } display="block" cursor="pointer" color="icon.info" _hover={{ color: 'link.primary.hover' }}/>
+                    <IconSvg name="info" boxSize={ 5 } display="block" cursor="pointer" color="icon.secondary" _hover={{ color: 'hover' }}/>
                   </GasInfoTooltip>
                 ) }
               </Skeleton>
 
               <Grid
                 templateColumns={{ lg: 'repeat(2, minmax(0, 1fr))' }}
-                gap={ 4 }
+                gap={{ base: 3, lg: 4 }}
               >
                 { section.charts.map((chart) => (
                   <ChartWidgetContainer

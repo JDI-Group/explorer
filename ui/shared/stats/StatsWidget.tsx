@@ -26,10 +26,10 @@ export type Props = {
   icon?: IconName;
 };
 
-const Container = ({ href, children }: { href?: Route; children: React.JSX.Element }) => {
+const Container = ({ href, children, className }: { href?: Route; children: React.JSX.Element; className?: string }) => {
   if (href) {
     return (
-      <Link href={ route(href) } variant="plain">
+      <Link href={ route(href) } variant="plain" className={ className }>
         { children }
       </Link>
     );
@@ -54,16 +54,17 @@ const StatsWidget = ({
   href,
 }: Props) => {
   return (
-    <Container href={ !isLoading ? href : undefined }>
+    <Container href={ !isLoading ? href : undefined } className={ href ? className : undefined }>
       <Flex
-        className={ className }
+        className={ href ? undefined : className }
         alignItems="center"
-        bgColor={ isLoading ? { _light: 'blackAlpha.50', _dark: 'whiteAlpha.50' } : { _light: 'gray.50', _dark: 'whiteAlpha.100' } }
+        bgColor={ isLoading ? { _light: 'blackAlpha.50', _dark: 'whiteAlpha.50' } : { _light: 'theme.stats.bg._light', _dark: 'theme.stats.bg._dark' } }
         p={ 3 }
         borderRadius="base"
         justifyContent="space-between"
         columnGap={ 2 }
         w="100%"
+        h="100%"
       >
         { icon && (
           <IconSvg
@@ -112,7 +113,7 @@ const StatsWidget = ({
         </Box>
         { typeof hint === 'string' ? (
           <Skeleton loading={ isLoading } alignSelf="center" borderRadius="base">
-            <Hint label={ hint } boxSize={ 6 } color={{ _light: 'gray.600', _dark: 'gray.400' }}/>
+            <Hint label={ hint } boxSize={ 5 } color="icon.secondary"/>
           </Skeleton>
         ) : hint }
       </Flex>

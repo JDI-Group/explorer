@@ -3,10 +3,11 @@ import { NextResponse } from 'next/server';
 
 // import generateCspPolicy from 'nextjs/csp/generateCspPolicy';
 import * as middlewares from 'nextjs/middlewares/index';
+import * as csp from 'nextjs/csp/index';
 
 // const cspPolicy = generateCspPolicy();
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const isPageRequest = req.headers.get('accept')?.includes('text/html');
   const start = Date.now();
 

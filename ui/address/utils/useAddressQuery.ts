@@ -30,7 +30,7 @@ const NO_RPC_FALLBACK_ERROR_CODES = [ 403 ];
 export default function useAddressQuery({ hash, isEnabled = true }: Params): AddressQuery {
   const [ isRefetchEnabled, setRefetchEnabled ] = React.useState(false);
 
-  const apiQuery = useApiQuery<'address', { status: number }>('address', {
+  const apiQuery = useApiQuery<'general:address', { status: number }>('general:address', {
     pathParams: { hash },
     queryOptions: {
       enabled: isEnabled && Boolean(hash),
@@ -75,6 +75,7 @@ export default function useAddressQuery({ hash, isEnabled = true }: Params): Add
         coin_balance: balance.toString(),
         creator_address_hash: null,
         creation_transaction_hash: null,
+        creation_status: null,
         exchange_rate: null,
         ens_domain_name: null,
         has_logs: false,

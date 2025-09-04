@@ -1,32 +1,40 @@
 import React from 'react';
 
 import type { UserOpsItem } from 'types/api/userOps';
+import type { ChainConfig } from 'types/multichain';
 
 import config from 'configs/app';
 import { TableCell, TableRow } from 'toolkit/chakra/table';
+import ChainIcon from 'ui/optimismSuperchain/components/ChainIcon';
 import CurrencyValue from 'ui/shared/CurrencyValue';
 import AddressStringOrParam from 'ui/shared/entities/address/AddressStringOrParam';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import UserOpEntity from 'ui/shared/entities/userOp/UserOpEntity';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 import UserOpStatus from 'ui/shared/userOps/UserOpStatus';
 
- type Props = {
-   item: UserOpsItem;
-   isLoading?: boolean;
-   showTx: boolean;
-   showSender: boolean;
- };
+type Props = {
+  item: UserOpsItem;
+  isLoading?: boolean;
+  showTx: boolean;
+  showSender: boolean;
+  chainData?: ChainConfig;
+};
 
-const UserOpsTableItem = ({ item, isLoading, showTx, showSender }: Props) => {
+const UserOpsTableItem = ({ item, isLoading, showTx, showSender, chainData }: Props) => {
   return (
     <TableRow>
+      { chainData && (
+        <TableCell verticalAlign="middle">
+          <ChainIcon data={ chainData } isLoading={ isLoading }/>
+        </TableCell>
+      ) }
       <TableCell verticalAlign="middle">
         <UserOpEntity hash={ item.hash } isLoading={ isLoading } noIcon fontWeight={ 700 } truncation="constant_long"/>
       </TableCell>
       <TableCell verticalAlign="middle">
-        <TimeAgoWithTooltip
+        <TimeWithTooltip
           timestamp={ item.timestamp }
           isLoading={ isLoading }
           color="text.secondary"

@@ -27,18 +27,18 @@ const AddressEpochRewards = ({ shouldRender = true, isQueryEnabled = true }: Pro
   const hash = getQueryParamString(router.query.hash);
 
   const rewardsQuery = useQueryWithPages({
-    resourceName: 'address_epoch_rewards',
+    resourceName: 'general:address_epoch_rewards',
     pathParams: {
       hash,
     },
     options: {
       enabled: isQueryEnabled && Boolean(hash),
-      placeholderData: generateListStub<'address_epoch_rewards'>(EPOCH_REWARD_ITEM, 50, { next_page_params: {
+      placeholderData: generateListStub<'general:address_epoch_rewards'>(EPOCH_REWARD_ITEM, 50, { next_page_params: {
         amount: '1',
         items_count: 50,
         type: 'voter',
         associated_account_address_hash: '1',
-        block_number: 10355938,
+        epoch_number: 10355938,
       } }),
     },
   });
@@ -59,7 +59,7 @@ const AddressEpochRewards = ({ shouldRender = true, isQueryEnabled = true }: Pro
       <Box hideFrom="lg">
         { rewardsQuery.data.items.map((item, index) => (
           <AddressEpochRewardsListItem
-            key={ item.block_hash + item.type + item.account.hash + item.associated_account.hash + (rewardsQuery.isPlaceholderData ? String(index) : '') }
+            key={ item.epoch_number + item.type + item.account.hash + item.associated_account.hash + (rewardsQuery.isPlaceholderData ? String(index) : '') }
             item={ item }
             isLoading={ rewardsQuery.isPlaceholderData }
           />
@@ -68,7 +68,7 @@ const AddressEpochRewards = ({ shouldRender = true, isQueryEnabled = true }: Pro
     </>
   ) : null;
 
-  const actionBar = rewardsQuery.pagination.isVisible ? (
+  const actionBar = (
     <ActionBar mt={ -6 }>
       <AddressCsvExportLink
         address={ hash }
@@ -76,9 +76,14 @@ const AddressEpochRewards = ({ shouldRender = true, isQueryEnabled = true }: Pro
         params={{ type: 'epoch-rewards' }}
         ml={{ lg: 'auto' }}
       />
-      <Pagination ml={{ base: 0, lg: 8 }} { ...rewardsQuery.pagination }/>
+      { rewardsQuery.pagination.isVisible && (
+        <Pagination
+          ml={{ base: 0, lg: 8 }}
+          { ...rewardsQuery.pagination }
+        />
+      ) }
     </ActionBar>
-  ) : null;
+  );
 
   return (
     <DataListDisplay

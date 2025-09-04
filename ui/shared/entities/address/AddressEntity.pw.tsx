@@ -56,6 +56,46 @@ test.describe('contract', () => {
   });
 });
 
+test.describe('shield', () => {
+  const ICON_URL = 'https://images.com/icons/shield.png';
+  test.use({ viewport: { width: 500, height: 200 } });
+
+  test('regular address with image', async({ render, page, mockAssetResponse }) => {
+    await mockAssetResponse(ICON_URL, './playwright/mocks/image_svg.svg');
+
+    await render(
+      <AddressEntity
+        address={{ ...addressMock.withoutName }}
+        icon={{
+          shield: { src: ICON_URL },
+          hint: 'Address on TON',
+        }}
+      />,
+    );
+    await page.locator('img').first().hover();
+    await page.locator('div').filter({ hasText: 'Address on TON' }).first().waitFor({ state: 'visible' });
+
+    await expect(page).toHaveScreenshot();
+  });
+
+  test('contract with icon', async({ render, page }) => {
+    await render(
+      <AddressEntity
+        address={{ ...addressMock.contract, is_verified: true, implementations: null }}
+        icon={{
+          shield: { name: 'brands/ton' },
+          hint: 'Address on TON',
+          hintPostfix: ' on TON',
+        }}
+      />,
+    );
+    await page.getByRole('img').first().hover();
+    await page.locator('div').filter({ hasText: 'Verified contract on TON' }).first().waitFor({ state: 'visible' });
+
+    await expect(page).toHaveScreenshot();
+  });
+});
+
 test.describe('proxy contract', () => {
   test.use({ viewport: { width: 500, height: 300 } });
 
@@ -74,7 +114,7 @@ test.describe('proxy contract', () => {
   test('without implementation name', async({ render, page }) => {
     const component = await render(
       <AddressEntity
-        address={{ ...addressMock.contract, implementations: [ { address: addressMock.contract.implementations?.[0].address as string } ] }}
+        address={{ ...addressMock.contract, implementations: [ { address_hash: addressMock.contract.implementations?.[0].address_hash as string } ] }}
       />,
     );
 
@@ -86,7 +126,11 @@ test.describe('proxy contract', () => {
   test('without any name', async({ render, page }) => {
     const component = await render(
       <AddressEntity
-        address={{ ...addressMock.contract, name: undefined, implementations: [ { address: addressMock.contract.implementations?.[0].address as string } ] }}
+        address={{
+          ...addressMock.contract,
+          name: undefined,
+          implementations: [ { address_hash: addressMock.contract.implementations?.[0].address_hash as string } ],
+        }}
       />,
     );
 

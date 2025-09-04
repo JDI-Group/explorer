@@ -1,7 +1,5 @@
 import type CspDev from 'csp-dev';
 
-import { getFeaturePayload } from 'configs/app/features/types';
-
 import config from 'configs/app';
 
 import { KEY_WORDS } from '../utils';
@@ -40,19 +38,11 @@ export function app(): CspDev.DirectiveDescriptor {
       config.app.isDev ? 'ws://localhost:3000/_next/webpack-hmr' : '',
 
       // APIs
-      config.api.endpoint,
-      config.api.socket,
-      getFeaturePayload(config.features.stats)?.api.endpoint,
-      getFeaturePayload(config.features.sol2uml)?.api.endpoint,
-      getFeaturePayload(config.features.verifiedTokens)?.api.endpoint,
-      getFeaturePayload(config.features.addressVerification)?.api.endpoint,
-      getFeaturePayload(config.features.nameService)?.api.endpoint,
-      getFeaturePayload(config.features.addressMetadata)?.api.endpoint,
-      getFeaturePayload(config.features.rewards)?.api.endpoint,
+      ...Object.values(config.apis).filter(Boolean).map((api) => api.endpoint),
+      ...Object.values(config.apis).filter(Boolean).map((api) => api.socketEndpoint),
 
       // chain RPC server
       ...config.chain.rpcUrls,
-      ...(getFeaturePayload(config.features.rollup)?.parentChain?.rpcUrls ?? []),
       'https://infragrid.v.network', // RPC providers
 
       // github (spec for api-docs page)
@@ -116,6 +106,7 @@ export function app(): CspDev.DirectiveDescriptor {
 
     'font-src': [
       KEY_WORDS.DATA,
+      KEY_WORDS.SELF,
       ...MAIN_DOMAINS,
       ...(externalFontsDomains || []),
     ],

@@ -8,7 +8,7 @@ import AddressFromToIcon from 'ui/shared/address/AddressFromToIcon';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import AddressEntityInterop from 'ui/shared/entities/address/AddressEntityInterop';
 import InteropMessageStatus from 'ui/shared/statusTag/InteropMessageStatus';
-import TimeAgoWithTooltip from 'ui/shared/TimeAgoWithTooltip';
+import TimeWithTooltip from 'ui/shared/time/TimeWithTooltip';
 
 import InteropMessageAdditionalInfo from './InteropMessageAdditionalInfo';
 import InteropMessageDestinationTx from './InteropMessageDestinationTx';
@@ -31,7 +31,7 @@ const InteropMessagesTableItem = ({ item, isLoading }: Props) => {
         </Skeleton>
       </TableCell>
       <TableCell>
-        <TimeAgoWithTooltip timestamp={ item.timestamp } isLoading={ isLoading } color="text.secondary"/>
+        <TimeWithTooltip timestamp={ item.timestamp } isLoading={ isLoading } color="text.secondary"/>
       </TableCell>
       <TableCell>
         <InteropMessageStatus status={ item.status } isLoading={ isLoading }/>
@@ -43,9 +43,15 @@ const InteropMessagesTableItem = ({ item, isLoading }: Props) => {
         <InteropMessageDestinationTx { ...item } isLoading={ isLoading }/>
       </TableCell>
       <TableCell>
-        { item.init_chain !== undefined ?
-          <AddressEntityInterop address={{ hash: item.target }} isLoading={ isLoading } truncation="constant" chain={ item.init_chain } w="min-content"/> :
-          <AddressEntity address={{ hash: item.target }} isLoading={ isLoading } truncation="constant"/>
+        { item.init_chain !== undefined ? (
+          <AddressEntityInterop
+            address={{ hash: item.target_address_hash }}
+            isLoading={ isLoading } truncation="constant"
+            chain={ item.init_chain }
+            w="min-content"
+          />
+        ) :
+          <AddressEntity address={{ hash: item.target_address_hash }} isLoading={ isLoading } truncation="constant"/>
         }
       </TableCell>
       <TableCell>
@@ -55,9 +61,16 @@ const InteropMessagesTableItem = ({ item, isLoading }: Props) => {
         />
       </TableCell>
       <TableCell>
-        { item.relay_chain !== undefined ?
-          <AddressEntityInterop address={{ hash: item.target }} isLoading={ isLoading } truncation="constant" chain={ item.relay_chain } w="min-content"/> :
-          <AddressEntity address={{ hash: item.target }} isLoading={ isLoading } truncation="constant"/>
+        { item.relay_chain !== undefined ? (
+          <AddressEntityInterop
+            address={{ hash: item.target_address_hash }}
+            isLoading={ isLoading }
+            truncation="constant"
+            chain={ item.relay_chain }
+            w="min-content"
+          />
+        ) :
+          <AddressEntity address={{ hash: item.target_address_hash }} isLoading={ isLoading } truncation="constant"/>
         }
       </TableCell>
     </TableRow>

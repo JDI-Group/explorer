@@ -3,21 +3,25 @@ import React from 'react';
 import type { AddressEpochRewardsItem } from 'types/api/address';
 
 import { TableBody, TableColumnHeader, TableHeaderSticky, TableRoot, TableRow } from 'toolkit/chakra/table';
+import TimeFormatToggle from 'ui/shared/time/TimeFormatToggle';
 
 import AddressEpochRewardsTableItem from './AddressEpochRewardsTableItem';
 
- type Props = {
-   items: Array<AddressEpochRewardsItem>;
-   isLoading?: boolean;
-   top: number;
- };
+type Props = {
+  items: Array<AddressEpochRewardsItem>;
+  isLoading?: boolean;
+  top: number;
+};
 
 const AddressEpochRewardsTable = ({ items, isLoading, top }: Props) => {
   return (
     <TableRoot minW="1000px" style={{ tableLayout: 'auto' }}>
       <TableHeaderSticky top={ top }>
         <TableRow>
-          <TableColumnHeader>Block</TableColumnHeader>
+          <TableColumnHeader>
+            Epoch
+            <TimeFormatToggle/>
+          </TableColumnHeader>
           <TableColumnHeader>Reward type</TableColumnHeader>
           <TableColumnHeader>Associated address</TableColumnHeader>
           <TableColumnHeader isNumeric>Value</TableColumnHeader>
@@ -27,7 +31,7 @@ const AddressEpochRewardsTable = ({ items, isLoading, top }: Props) => {
         { items.map((item, index) => {
           return (
             <AddressEpochRewardsTableItem
-              key={ item.block_hash + item.type + item.account.hash + item.associated_account.hash + (isLoading ? String(index) : '') }
+              key={ item.epoch_number + item.type + item.account.hash + item.associated_account.hash + (isLoading ? String(index) : '') }
               item={ item }
               isLoading={ isLoading }
             />

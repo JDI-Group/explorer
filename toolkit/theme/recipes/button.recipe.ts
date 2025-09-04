@@ -6,6 +6,7 @@ export const recipe = defineRecipe({
     gap: 0,
     fontWeight: 600,
     overflow: 'hidden',
+    borderRadius: 'base',
     _disabled: {
       opacity: 'control.disabled',
     },
@@ -13,10 +14,10 @@ export const recipe = defineRecipe({
   variants: {
     variant: {
       solid: {
-        bg: 'blue.600',
+        bg: 'button.solid.bg',
         color: 'white',
         _hover: {
-          bg: 'blue.400',
+          bg: 'hover',
         },
         _loading: {
           opacity: 1,
@@ -27,7 +28,7 @@ export const recipe = defineRecipe({
           },
         },
         _expanded: {
-          bg: 'blue.400',
+          bg: 'hover',
         },
       },
       outline: {
@@ -38,8 +39,8 @@ export const recipe = defineRecipe({
         borderColor: 'button.outline.fg',
         _hover: {
           bg: 'transparent',
-          color: 'blue.400',
-          borderColor: 'blue.400',
+          color: 'hover',
+          borderColor: 'hover',
         },
         _loading: {
           opacity: 1,
@@ -58,13 +59,13 @@ export const recipe = defineRecipe({
         borderColor: 'button.dropdown.border',
         _hover: {
           bg: 'transparent',
-          color: 'blue.400',
-          borderColor: 'blue.400',
+          color: 'hover',
+          borderColor: 'hover',
         },
         _loading: {
           opacity: 1,
           '& .chakra-spinner': {
-            borderColor: 'blue.500',
+            borderColor: 'selected.option.bg',
             borderBottomColor: 'spinner.track',
             borderInlineStartColor: 'spinner.track',
           },
@@ -72,20 +73,23 @@ export const recipe = defineRecipe({
         // When the dropdown is open, the button should be active
         _expanded: {
           bg: 'transparent',
-          color: 'blue.400',
-          borderColor: 'blue.400',
+          color: 'hover',
+          borderColor: 'hover',
         },
         // We have a special state for this button variant that serves as a popover trigger.
         // When any items (filters) are selected in the popover, the button should change its background and text color.
         // The last CSS selector is for redefining styles for the TabList component.
         _selected: {
-          bg: 'button.dropdown.bg.selected',
-          color: 'button.dropdown.fg.selected',
+          bg: 'selected.control.bg',
+          color: 'selected.control.text',
           borderColor: 'transparent',
           _hover: {
-            bg: 'button.dropdown.bg.selected',
-            color: 'button.dropdown.fg.selected',
+            bg: 'selected.control.bg',
+            color: 'hover',
             borderColor: 'transparent',
+          },
+          _expanded: {
+            color: 'hover',
           },
         },
       },
@@ -97,13 +101,13 @@ export const recipe = defineRecipe({
         borderStyle: 'solid',
         _hover: {
           bg: 'transparent',
-          color: 'blue.400',
-          borderColor: 'blue.400',
+          color: 'hover',
+          borderColor: 'hover',
         },
         _loading: {
           opacity: 1,
           '& .chakra-spinner': {
-            borderColor: 'blue.500',
+            borderColor: 'selected.option.bg',
             borderBottomColor: 'spinner.track',
             borderInlineStartColor: 'spinner.track',
           },
@@ -115,16 +119,22 @@ export const recipe = defineRecipe({
           borderWidth: '0px',
           _hover: {
             bg: 'button.header.bg.selected',
-            color: 'button.header.fg.selected',
+            color: 'hover',
+          },
+          _expanded: {
+            color: 'hover',
           },
           _highlighted: {
             bg: 'button.header.bg.highlighted',
             color: 'button.header.fg.highlighted',
             borderColor: 'transparent',
             borderWidth: '0px',
+            _expanded: {
+              color: 'hover',
+            },
             _hover: {
               bg: 'button.header.bg.highlighted',
-              color: 'button.header.fg.highlighted',
+              color: 'hover',
             },
           },
         },
@@ -149,30 +159,39 @@ export const recipe = defineRecipe({
           color: 'button.hero.fg.selected',
           _hover: {
             bg: 'button.hero.bg.selected',
-            color: 'button.hero.fg.selected',
+            color: 'hover',
+          },
+          _expanded: {
+            color: 'hover',
           },
         },
       },
       segmented: {
         bg: 'transparent',
         color: 'button.segmented.fg',
-        borderColor: 'button.segmented.border',
+        borderColor: 'selected.control.bg',
         borderWidth: '2px',
         borderStyle: 'solid',
         borderRadius: 'none',
         _hover: {
-          color: 'link.primary.hover',
+          color: 'hover',
         },
         _selected: {
-          bg: 'button.segmented.border',
-          color: 'button.segmented.fg.selected',
+          bg: 'selected.control.bg',
+          color: 'selected.control.text',
           _hover: {
-            bg: 'button.segmented.border',
-            color: 'button.segmented.fg.selected',
+            bg: 'selected.control.bg',
+            color: 'selected.control.text',
+          },
+          '& + *': {
+            borderLeftWidth: '0',
           },
         },
-        _notFirst: {
-          borderLeftWidth: '0',
+        _notLast: {
+          borderRightWidth: '0',
+          _selected: {
+            borderRightWidth: '2px',
+          },
         },
         _first: {
           borderTopLeftRadius: 'base',
@@ -196,7 +215,7 @@ export const recipe = defineRecipe({
         color: 'button.subtle.fg',
         _hover: {
           bg: 'button.subtle.bg',
-          color: 'link.primary.hover',
+          color: 'hover',
         },
         _disabled: {
           bg: 'button.subtle.bg',
@@ -220,21 +239,46 @@ export const recipe = defineRecipe({
       },
       icon_secondary: {
         bg: 'transparent',
-        color: 'button.icon_secondary.fg',
+        color: 'icon.secondary',
         border: 'none',
         _hover: {
-          color: 'link.primary.hover',
+          color: 'hover',
         },
         _selected: {
-          bg: 'button.icon_secondary.bg.selected',
-          color: 'button.icon_secondary.fg.selected',
+          bg: 'selected.control.bg',
+          color: 'selected.control.text',
           _hover: {
-            bg: 'button.icon_secondary.bg.selected',
-            color: 'button.icon_secondary.fg.selected',
+            bg: 'selected.control.bg',
+            color: 'hover',
+          },
+          _expanded: {
+            color: 'hover',
           },
         },
         _expanded: {
-          color: 'link.primary.hover',
+          color: 'hover',
+        },
+      },
+      pagination: {
+        borderWidth: '2px',
+        borderStyle: 'solid',
+        bg: 'transparent',
+        color: 'button.pagination.fg',
+        borderColor: 'button.pagination.border',
+        _hover: {
+          bg: 'transparent',
+          color: 'hover',
+          borderColor: 'hover',
+        },
+        _selected: {
+          bg: 'selected.control.bg',
+          color: 'selected.control.text',
+          borderColor: 'transparent',
+          _hover: {
+            bg: 'selected.control.bg',
+            color: 'selected.control.text',
+            borderColor: 'transparent',
+          },
         },
       },
     },

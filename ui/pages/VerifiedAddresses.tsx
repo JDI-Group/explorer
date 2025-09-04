@@ -12,6 +12,7 @@ import getQueryParamString from 'lib/router/getQueryParamString';
 import { TOKEN_INFO_APPLICATION, VERIFIED_ADDRESS } from 'stubs/account';
 import { Button } from 'toolkit/chakra/button';
 import { Link } from 'toolkit/chakra/link';
+import { BackToButton } from 'toolkit/components/buttons/BackToButton';
 import { useDisclosure } from 'toolkit/hooks/useDisclosure';
 import AddressVerificationModal from 'ui/addressVerification/AddressVerificationModal';
 import AccountPageDescription from 'ui/shared/AccountPageDescription';
@@ -44,14 +45,14 @@ const VerifiedAddresses = () => {
 
   const profileQuery = useProfileQuery();
 
-  const addressesQuery = useApiQuery('verified_addresses', {
+  const addressesQuery = useApiQuery('contractInfo:verified_addresses', {
     pathParams: { chainId: config.chain.id },
     queryOptions: {
       placeholderData: { verifiedAddresses: Array(3).fill(VERIFIED_ADDRESS) },
       enabled: Boolean(profileQuery.data?.email),
     },
   });
-  const applicationsQuery = useApiQuery('token_info_applications', {
+  const applicationsQuery = useApiQuery('admin:token_info_applications', {
     pathParams: { chainId: config.chain.id, id: undefined },
     queryOptions: {
       placeholderData: { submissions: Array(3).fill(TOKEN_INFO_APPLICATION) },
@@ -81,7 +82,7 @@ const VerifiedAddresses = () => {
 
   const handleAddressSubmit = React.useCallback((newItem: VerifiedAddress) => {
     queryClient.setQueryData(
-      getResourceKey('verified_addresses', { pathParams: { chainId: config.chain.id } }),
+      getResourceKey('contractInfo:verified_addresses', { pathParams: { chainId: config.chain.id } }),
       (prevData: VerifiedAddressResponse | undefined) => {
         if (!prevData) {
           return { verifiedAddresses: [ newItem ] };
@@ -96,7 +97,7 @@ const VerifiedAddresses = () => {
   const handleApplicationSubmit = React.useCallback((newItem: TokenInfoApplication) => {
     setSelectedAddress(undefined);
     queryClient.setQueryData(
-      getResourceKey('token_info_applications', { pathParams: { chainId: config.chain.id, id: undefined } }),
+      getResourceKey('admin:token_info_applications', { pathParams: { chainId: config.chain.id, id: undefined } }),
       (prevData: TokenInfoApplications | undefined) => {
         if (!prevData) {
           return { submissions: [ newItem ] };
@@ -126,23 +127,14 @@ const VerifiedAddresses = () => {
     );
   })();
 
-  const backLink = React.useMemo(() => {
-    if (!selectedAddress) {
-      return;
-    }
-
-    return {
-      label: 'Back to my verified addresses',
-      onClick: handleGoBack,
-    };
-  }, [ handleGoBack, selectedAddress ]);
-
   if (selectedAddress) {
     const addressInfo = addressesQuery.data?.verifiedAddresses.find(({ contractAddress }) => contractAddress.toLowerCase() === selectedAddress.toLowerCase());
     const tokenName = addressInfo ? `${ addressInfo.metadata.tokenName } (${ addressInfo.metadata.tokenSymbol })` : '';
+    const beforeTitle = <BackToButton onClick={ handleGoBack } hint="Back to my verified addresses" mr={ 3 }/>;
+
     return (
       <>
-        <PageTitle title="Token info application form" backLink={ backLink }/>
+        <PageTitle title="Token info application form" beforeTitle={ beforeTitle }/>
         <TokenInfoForm
           address={ selectedAddress }
           tokenName={ tokenName }
@@ -210,7 +202,7 @@ const VerifiedAddresses = () => {
           <List.Item>The source code for the smart contract is deployed on “{ config.chain.name }”.</List.Item>
           <List.Item>
             <span>The source code is verified (if not yet verified, you can use </span>
-            <Link href="https://docs.blockscout.com/for-users/verifying-a-smart-contract" target="_blank">this tool</Link>
+            <Link href="https://docs.blockscout.com/devs/verification" target="_blank">this tool</Link>
             <span>).</span>
           </List.Item>
         </List.Root>
