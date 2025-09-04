@@ -38,7 +38,7 @@ const configs = {
       l1: createPublicClient({ chain: bsc, transport: http() }),
     },
     addresses: {
-      l1: { moonchainL1: '0x54D8864e8855A7B66eE42B8F2Eaa0F2E06bd641a' },
+      l1: { moonchainL1: '0xB262d982623A9cE0E80e2A779E1B283eab11b2E3' },
       l2: { moonchainL2: '0x9998880000000000000000000000000000010001' },
     },
   },
